@@ -1,12 +1,10 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace MaterialDesignThemes.Wpf.Transitions
 {
     public class SlideWipe : ITransitionWipe
-    {        
+    {
         private readonly SineEase _sineEase = new SineEase();
 
         /// <summary>

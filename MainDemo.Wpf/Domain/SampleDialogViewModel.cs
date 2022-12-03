@@ -1,27 +1,13 @@
-using System;
-using System.ComponentModel;
-using MaterialDesignColors.WpfExample.Domain;
-
 namespace MaterialDesignDemo.Domain
 {
-    public class SampleDialogViewModel : INotifyPropertyChanged
+    public class SampleDialogViewModel : ViewModelBase
     {
-        private string _name;
+        private string? _name;
 
-        public string Name
+        public string? Name
         {
-            get { return _name; }
-            set
-            {
-                this.MutateVerbose(ref _name, value, RaisePropertyChanged());
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private Action<PropertyChangedEventArgs> RaisePropertyChanged()
-        {
-            return args => PropertyChanged?.Invoke(this, args);
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
     }
 }

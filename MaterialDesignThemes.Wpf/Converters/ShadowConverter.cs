@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Effects;
 
@@ -12,40 +6,27 @@ namespace MaterialDesignThemes.Wpf.Converters
 {
     public class ShadowConverter : IValueConverter
     {
-        private static readonly IDictionary<ShadowDepth, DropShadowEffect> ShadowsDictionary;
-        public static readonly ShadowConverter Instance = new ShadowConverter();
+        public static readonly ShadowConverter Instance = new();
 
-        static ShadowConverter()
-        {
-            var resourceDictionary = new ResourceDictionary { Source = new Uri("pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Shadows.xaml", UriKind.Absolute) };
-
-            ShadowsDictionary = new Dictionary<ShadowDepth, DropShadowEffect>
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => value switch
             {
-                { ShadowDepth.Depth0, null },
-                { ShadowDepth.Depth1, (DropShadowEffect)resourceDictionary["MaterialDesignShadowDepth1"] },
-                { ShadowDepth.Depth2, (DropShadowEffect)resourceDictionary["MaterialDesignShadowDepth2"] },
-                { ShadowDepth.Depth3, (DropShadowEffect)resourceDictionary["MaterialDesignShadowDepth3"] },
-                { ShadowDepth.Depth4, (DropShadowEffect)resourceDictionary["MaterialDesignShadowDepth4"] },
-                { ShadowDepth.Depth5, (DropShadowEffect)resourceDictionary["MaterialDesignShadowDepth5"] },
+                Elevation elevation => Clone(Convert(elevation)),
+#pragma warning disable CS0618
+                ShadowDepth depth => Clone(Convert(ShadowAssist.GetElevation(depth))),
+#pragma warning restore CS0618
+                _ => null
             };
-        }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+
+        public static DropShadowEffect? Convert(Elevation elevation) => ElevationAssist.GetDropShadow(elevation);
+
+        private static DropShadowEffect? Clone(DropShadowEffect? dropShadowEffect)
         {
-            if (!(value is ShadowDepth)) return null;
-
-            return Clone(ShadowsDictionary[(ShadowDepth) value]);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static DropShadowEffect Clone(DropShadowEffect dropShadowEffect)
-        {
-            if (dropShadowEffect == null) return null;
-            return new DropShadowEffect()
+            if (dropShadowEffect is null) return null;
+            return new DropShadowEffect
             {
                 BlurRadius = dropShadowEffect.BlurRadius,
                 Color = dropShadowEffect.Color,

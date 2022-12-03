@@ -1,41 +1,15 @@
-﻿using System;
-using System.Windows;
-
-namespace MaterialDesignThemes.Wpf
+﻿namespace MaterialDesignThemes.Wpf
 {
     public class DialogClosingEventArgs : RoutedEventArgs
     {
-        public DialogClosingEventArgs(DialogSession session, object parameter)
-        {
-            if (session == null) throw new ArgumentNullException(nameof(session));
-            Session = session;
-
-            Parameter = parameter;         
-        }
-
-        public DialogClosingEventArgs(DialogSession session, object parameter, RoutedEvent routedEvent) : base(routedEvent)
-        {
-            if (session == null) throw new ArgumentNullException(nameof(session));
-            Session = session;
-
-            Parameter = parameter;            
-        }
-
-        public DialogClosingEventArgs(DialogSession session, object parameter, RoutedEvent routedEvent, object source) : base(routedEvent, source)
-        {
-            if (session == null) throw new ArgumentNullException(nameof(session));
-            Session = session;
-
-            Parameter = parameter;            
-        }
+        public DialogClosingEventArgs(DialogSession session, RoutedEvent routedEvent)
+            : base(routedEvent)
+            => Session = session ?? throw new ArgumentNullException(nameof(session));
 
         /// <summary>
         /// Cancel the close.
         /// </summary>
-        public void Cancel()
-        {
-            IsCancelled = true;
-        }
+        public void Cancel() => IsCancelled = true;
 
         /// <summary>
         /// Indicates if the close has already been cancelled.
@@ -43,19 +17,13 @@ namespace MaterialDesignThemes.Wpf
         public bool IsCancelled { get; private set; }
 
         /// <summary>
-        /// Gets the paramter originally provided to <see cref="DialogHost.CloseDialogCommand"/>/
+        /// Gets the parameter originally provided to <see cref="DialogHost.CloseDialogCommand"/>/
         /// </summary>
-        public object Parameter { get; }
+        public object? Parameter => Session.CloseParameter;
 
         /// <summary>
-        /// Allows interation with the current dialog session.
+        /// Allows interaction with the current dialog session.
         /// </summary>
         public DialogSession Session { get; }
-
-        /// <summary>
-        /// Gets the <see cref="DialogHost.DialogContent"/> which is currently displayed, so this could be a view model or a UI element.
-        /// </summary>
-        [Obsolete("Prefer Session.Content")]
-        public object Content => Session.Content;
     }
 }

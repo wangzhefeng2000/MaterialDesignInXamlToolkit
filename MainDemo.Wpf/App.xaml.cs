@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Markup;
+﻿using ShowMeTheXAML;
 
-namespace MaterialDesignColors.WpfExample
+namespace MaterialDesignDemo
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -18,6 +9,13 @@ namespace MaterialDesignColors.WpfExample
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            //This is an alternate way to initialize MaterialDesignInXAML if you don't use the MaterialDesignResourceDictionary in App.xaml
+            //Color primaryColor = SwatchHelper.Lookup[MaterialDesignColor.DeepPurple];
+            //Color accentColor = SwatchHelper.Lookup[MaterialDesignColor.Lime];
+            //ITheme theme = Theme.Create(new MaterialDesignLightTheme(), primaryColor, accentColor);
+            //Resources.SetTheme(theme);
+
+
             //Illustration of setting culture info fully in WPF:
             /*             
             Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
@@ -25,6 +23,14 @@ namespace MaterialDesignColors.WpfExample
             FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(
                         XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
             */
+
+            XamlDisplay.Init();
+
+            // test setup for Persian culture settings
+            /*System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("fa-Ir");
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("fa-Ir");
+            FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(
+                        System.Windows.Markup.XmlLanguage.GetLanguage(System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag)));*/
 
             base.OnStartup(e);
         }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -8,14 +6,14 @@ namespace MaterialDesignThemes.Wpf.Converters
 {
     public class BrushRoundConverter : IValueConverter
     {
-        public Brush HighValue { get; set; } = Brushes.White;
+        public Brush? HighValue { get; set; } = Brushes.White;
 
-        public Brush LowValue { get; set; } = Brushes.Black;
+        public Brush? LowValue { get; set; } = Brushes.Black;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {            
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
             var solidColorBrush = value as SolidColorBrush;
-            if (solidColorBrush == null) return null;
+            if (solidColorBrush is null) return null;
 
             var color = solidColorBrush.Color;
 
@@ -24,9 +22,7 @@ namespace MaterialDesignThemes.Wpf.Converters
             return brightness < 123 ? LowValue : HighValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Binding.DoNothing;
-        }
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => Binding.DoNothing;
     }
 }

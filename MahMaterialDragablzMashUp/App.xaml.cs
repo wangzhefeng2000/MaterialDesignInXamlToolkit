@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows.Media;
+using MaterialDesignThemes.Wpf;
+using ShowMeTheXAML;
 
 namespace MahMaterialDragablzMashUp
 {
@@ -13,5 +9,23 @@ namespace MahMaterialDragablzMashUp
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            XamlDisplay.Init();
+            base.OnStartup(e);
+
+            //Add/Update brush used by Dragablz when the theme changes
+            //Solution for https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/issues/2349
+            PaletteHelper helper = new PaletteHelper();
+            if (helper.GetThemeManager() is { } themeManager)
+            {
+                themeManager.ThemeChanged += ThemeManager_ThemeChanged;
+            }
+        }
+
+        private void ThemeManager_ThemeChanged(object? sender, ThemeChangedEventArgs e)
+        {
+            Resources["SecondaryAccentBrush"] = new SolidColorBrush(e.NewTheme.SecondaryMid.Color);
+        }
     }
 }

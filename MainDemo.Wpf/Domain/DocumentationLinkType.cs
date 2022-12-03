@@ -1,4 +1,4 @@
-﻿namespace MaterialDesignColors.WpfExample.Domain
+﻿namespace MaterialDesignDemo.Domain
 {
     public enum DocumentationLinkType
     {
@@ -6,6 +6,7 @@
         DemoPageSource,
         ControlSource,
         StyleSource,
-        Video
+        Video,
+        Specs
     }
 }

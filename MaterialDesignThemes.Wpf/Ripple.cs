@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace MaterialDesignThemes.Wpf
@@ -22,19 +15,19 @@ namespace MaterialDesignThemes.Wpf
         private static readonly HashSet<Ripple> PressedInstances = new HashSet<Ripple>();
 
         static Ripple()
-        {                        
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Ripple), new FrameworkPropertyMetadata(typeof(Ripple)));
 
             EventManager.RegisterClassHandler(typeof(ContentControl), Mouse.PreviewMouseUpEvent, new MouseButtonEventHandler(MouseButtonEventHandler), true);
-            EventManager.RegisterClassHandler(typeof(ContentControl), Mouse.MouseMoveEvent, new MouseEventHandler(MouseMouveEventHandler), true);
+            EventManager.RegisterClassHandler(typeof(ContentControl), Mouse.MouseMoveEvent, new MouseEventHandler(MouseMoveEventHandler), true);
             EventManager.RegisterClassHandler(typeof(Popup), Mouse.PreviewMouseUpEvent, new MouseButtonEventHandler(MouseButtonEventHandler), true);
-            EventManager.RegisterClassHandler(typeof(Popup), Mouse.MouseMoveEvent, new MouseEventHandler(MouseMouveEventHandler), true);
+            EventManager.RegisterClassHandler(typeof(Popup), Mouse.MouseMoveEvent, new MouseEventHandler(MouseMoveEventHandler), true);
         }
 
         public Ripple()
-        {            
-            SizeChanged += OnSizeChanged;            
-        }        
+        {
+            SizeChanged += OnSizeChanged;
+        }
 
         private static void MouseButtonEventHandler(object sender, MouseButtonEventArgs e)
         {
@@ -54,7 +47,8 @@ namespace MaterialDesignThemes.Wpf
                         scaleXKeyFrame.KeyTime = KeyTime.FromTimeSpan(newTime);
                     }
                     var scaleYKeyFrame = ripple.Template.FindName("MousePressedToNormalScaleYKeyFrame", ripple) as EasingDoubleKeyFrame;
-                    if (scaleYKeyFrame != null) {
+                    if (scaleYKeyFrame != null)
+                    {
                         scaleYKeyFrame.KeyTime = KeyTime.FromTimeSpan(newTime);
                     }
                 }
@@ -64,7 +58,7 @@ namespace MaterialDesignThemes.Wpf
             PressedInstances.Clear();
         }
 
-        private static void MouseMouveEventHandler(object sender, MouseEventArgs e)
+        private static void MouseMoveEventHandler(object sender, MouseEventArgs e)
         {
             foreach (var ripple in PressedInstances.ToList())
             {
@@ -79,21 +73,19 @@ namespace MaterialDesignThemes.Wpf
                     PressedInstances.Remove(ripple);
                 }
             }
-        }        
+        }
 
         public static readonly DependencyProperty FeedbackProperty = DependencyProperty.Register(
             nameof(Feedback), typeof(Brush), typeof(Ripple), new PropertyMetadata(default(Brush)));
 
-        public Brush Feedback
+        public Brush? Feedback
         {
-            get { return (Brush)GetValue(FeedbackProperty); }
-            set { SetValue(FeedbackProperty, value); }
+            get => (Brush?)GetValue(FeedbackProperty);
+            set => SetValue(FeedbackProperty, value);
         }
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            var point = e.GetPosition(this);
-            
             if (RippleAssist.GetIsCentered(this))
             {
                 var innerContent = (Content as FrameworkElement);
@@ -103,7 +95,10 @@ namespace MaterialDesignThemes.Wpf
                     var position = innerContent.TransformToAncestor(this)
                         .Transform(new Point(0, 0));
 
-                    RippleX = position.X + innerContent.ActualWidth / 2 - RippleSize / 2;
+                    if (FlowDirection == FlowDirection.RightToLeft)
+                        RippleX = position.X - innerContent.ActualWidth / 2 - RippleSize / 2;
+                    else
+                        RippleX = position.X + innerContent.ActualWidth / 2 - RippleSize / 2;
                     RippleY = position.Y + innerContent.ActualHeight / 2 - RippleSize / 2;
                 }
                 else
@@ -114,6 +109,7 @@ namespace MaterialDesignThemes.Wpf
             }
             else
             {
+                var point = e.GetPosition(this);
                 RippleX = point.X - RippleSize / 2;
                 RippleY = point.Y - RippleSize / 2;
             }
@@ -138,8 +134,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double RippleSize
         {
-            get { return (double)GetValue(RippleSizeProperty); }
-            private set { SetValue(RippleSizePropertyKey, value); }
+            get => (double)GetValue(RippleSizeProperty);
+            private set => SetValue(RippleSizePropertyKey, value);
         }
 
         private static readonly DependencyPropertyKey RippleXPropertyKey =
@@ -152,8 +148,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double RippleX
         {
-            get { return (double)GetValue(RippleXProperty); }
-            private set { SetValue(RippleXPropertyKey, value); }
+            get => (double)GetValue(RippleXProperty);
+            private set => SetValue(RippleXPropertyKey, value);
         }
 
         private static readonly DependencyPropertyKey RippleYPropertyKey =
@@ -166,8 +162,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double RippleY
         {
-            get { return (double)GetValue(RippleYProperty); }
-            private set { SetValue(RippleYPropertyKey, value); }
+            get => (double)GetValue(RippleYProperty);
+            private set => SetValue(RippleYPropertyKey, value);
         }
 
         /// <summary>
@@ -184,14 +180,14 @@ namespace MaterialDesignThemes.Wpf
         /// </summary> 
         public bool RecognizesAccessKey
         {
-            get { return (bool)GetValue(RecognizesAccessKeyProperty); }
-            set { SetValue(RecognizesAccessKeyProperty, value); }
+            get => (bool)GetValue(RecognizesAccessKeyProperty);
+            set => SetValue(RecognizesAccessKeyProperty, value);
         }
 
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-                        
+
             VisualStateManager.GoToState(this, TemplateStateNormal, false);
         }
 

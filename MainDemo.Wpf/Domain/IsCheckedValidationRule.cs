@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Windows.Controls;
+﻿using System.Globalization;
 
 namespace MaterialDesignDemo.Domain
 {
@@ -8,7 +6,7 @@ namespace MaterialDesignDemo.Domain
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            if( value is bool && (bool) value)
+            if (value is bool && (bool)value)
             {
                 return ValidationResult.ValidResult;
             }

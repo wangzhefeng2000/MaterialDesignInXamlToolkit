@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Globalization;
 using System.Windows.Data;
 
 namespace MaterialDesignThemes.Wpf.Converters
@@ -25,11 +23,11 @@ namespace MaterialDesignThemes.Wpf.Converters
         {
             if (value is Point)
             {
-                var point = (Point) value;
+                var point = (Point)value;
                 return new object[] { point.X, point.Y };
             }
 
             return new object[0];
-        }        
+        }
     }
 }

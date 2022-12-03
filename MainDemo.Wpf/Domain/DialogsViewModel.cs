@@ -1,14 +1,9 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using MaterialDesignColors.WpfExample.Domain;
+﻿using System.Diagnostics;
 using MaterialDesignThemes.Wpf;
 
 namespace MaterialDesignDemo.Domain
 {
-    public class DialogsViewModel : INotifyPropertyChanged
+    public class DialogsViewModel : ViewModelBase
     {
         public DialogsViewModel()
         {
@@ -24,27 +19,28 @@ namespace MaterialDesignDemo.Domain
 
         public ICommand RunExtendedDialogCommand => new AnotherCommandImplementation(ExecuteRunExtendedDialog);
 
-        private async void ExecuteRunDialog(object o)
+        private async void ExecuteRunDialog(object? _)
         {
             //let's set up a little MVVM, cos that's what the cool kids are doing:
             var view = new SampleDialog
             {
                 DataContext = new SampleDialogViewModel()
             };
-            
+
             //show the dialog
-            var result = await DialogHost.Show(view, "RootDialog", ClosingEventHandler);
+            var result = await DialogHost.Show(view, "RootDialog", null, ClosingEventHandler, ClosedEventHandler);
 
             //check the result...
-            Console.WriteLine("Dialog was closed, the CommandParameter used to close it was: " + (result ?? "NULL"));
+            Debug.WriteLine("Dialog was closed, the CommandParameter used to close it was: " + (result ?? "NULL"));
         }
 
         private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
-        {
-            Console.WriteLine("You can intercept the closing event, and cancel here.");
-        }
+            => Debug.WriteLine("You can intercept the closing event, and cancel here.");
 
-        private async void ExecuteRunExtendedDialog(object o)
+        private void ClosedEventHandler(object sender, DialogClosedEventArgs eventArgs)
+            => Debug.WriteLine("You can intercept the closed event here (1).");
+
+        private async void ExecuteRunExtendedDialog(object? _)
         {
             //let's set up a little MVVM, cos that's what the cool kids are doing:
             var view = new SampleDialog
@@ -53,20 +49,20 @@ namespace MaterialDesignDemo.Domain
             };
 
             //show the dialog
-            var result = await DialogHost.Show(view, "RootDialog", ExtendedOpenedEventHandler, ExtendedClosingEventHandler);
+            var result = await DialogHost.Show(view, "RootDialog", ExtendedOpenedEventHandler, ExtendedClosingEventHandler, ExtendedClosedEventHandler);
 
             //check the result...
-            Console.WriteLine("Dialog was closed, the CommandParameter used to close it was: " + (result ?? "NULL"));
+            Debug.WriteLine("Dialog was closed, the CommandParameter used to close it was: " + (result ?? "NULL"));
         }
 
-        private void ExtendedOpenedEventHandler(object sender, DialogOpenedEventArgs eventargs)
-        {
-            Console.WriteLine("You could intercept the open and affect the dialog using eventArgs.Session.");
-        }
+        private void ExtendedOpenedEventHandler(object sender, DialogOpenedEventArgs eventArgs)
+            => Debug.WriteLine("You could intercept the open and affect the dialog using eventArgs.Session.");
 
         private void ExtendedClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
         {
-            if ((bool)eventArgs.Parameter == false) return;
+            Debug.WriteLine("You can intercept the closing event, cancel it, and do our own close after a little while.");
+            if (eventArgs.Parameter is bool parameter &&
+                parameter == false) return;
 
             //OK, lets cancel the close...
             eventArgs.Cancel();
@@ -81,6 +77,9 @@ namespace MaterialDesignDemo.Domain
                     TaskScheduler.FromCurrentSynchronizationContext());
         }
 
+        private void ExtendedClosedEventHandler(object sender, DialogClosedEventArgs eventArgs)
+            => Debug.WriteLine("You could intercept the closed event here (2).");
+
         #endregion
 
         #region SAMPLE 4
@@ -91,42 +90,29 @@ namespace MaterialDesignDemo.Domain
         public ICommand CancelSample4DialogCommand { get; }
 
         private bool _isSample4DialogOpen;
-        private object _sample4Content;
+        private object? _sample4Content;
 
         public bool IsSample4DialogOpen
         {
-            get { return _isSample4DialogOpen; }
-            set
-            {
-                if (_isSample4DialogOpen == value) return;
-                _isSample4DialogOpen = value;
-                OnPropertyChanged();
-            }
+            get => _isSample4DialogOpen;
+            set => SetProperty(ref _isSample4DialogOpen, value);
         }
 
-        public object Sample4Content
+        public object? Sample4Content
         {
-            get { return _sample4Content; }
-            set
-            {
-                if (_sample4Content == value) return;
-                _sample4Content = value;
-                OnPropertyChanged();
-            }
+            get => _sample4Content;
+            set => SetProperty(ref _sample4Content, value);
         }
 
-        private void OpenSample4Dialog(object obj)
+        private void OpenSample4Dialog(object? _)
         {
             Sample4Content = new Sample4Dialog();
             IsSample4DialogOpen = true;
         }
 
-        private void CancelSample4Dialog(object obj)
-        {
-            IsSample4DialogOpen = false;
-        }
+        private void CancelSample4Dialog(object? _) => IsSample4DialogOpen = false;
 
-        private void AcceptSample4Dialog(object obj)
+        private void AcceptSample4Dialog(object? _)
         {
             //pretend to do something for 3 seconds, then close
             Sample4Content = new SampleProgressDialog();
@@ -136,12 +122,5 @@ namespace MaterialDesignDemo.Domain
         }
 
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

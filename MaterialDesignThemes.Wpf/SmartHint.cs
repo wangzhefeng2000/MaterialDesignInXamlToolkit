@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media.Animation;
+﻿using System.ComponentModel;
 using MaterialDesignThemes.Wpf.Converters;
 
 namespace MaterialDesignThemes.Wpf
@@ -17,25 +9,24 @@ namespace MaterialDesignThemes.Wpf
     /// <para/>
     /// To set a target control you should set the HintProxy property. Use the <see cref="HintProxyFabricConverter.Instance"/> converter which converts a control into the IHintProxy interface.
     /// </summary>
-    [TemplateVisualState(GroupName = ContentStatesGroupName, Name = ContentEmptyName)]
-    [TemplateVisualState(GroupName = ContentStatesGroupName, Name = ContentNotEmptyName)]
+    [TemplateVisualState(GroupName = ContentStatesGroupName, Name = HintRestingPositionName)]
+    [TemplateVisualState(GroupName = ContentStatesGroupName, Name = HintFloatingPositionName)]
     public class SmartHint : Control
-    {        
+    {
         public const string ContentStatesGroupName = "ContentStates";
-        public const string ContentEmptyName = "ContentEmpty";
-        public const string ContentNotEmptyName = "ContentNotEmpty";
 
-        private ContentControl _floatingHintPart = null;
+        public const string HintRestingPositionName = "HintRestingPosition";
+        public const string HintFloatingPositionName = "HintFloatingPosition";
 
         #region ManagedProperty
 
         public static readonly DependencyProperty HintProxyProperty = DependencyProperty.Register(
-            nameof(HintProxy), typeof(IHintProxy), typeof(SmartHint), new PropertyMetadata(default(IHintProxy), HintProxyPropertyChangedCallback));
+            nameof(HintProxy), typeof(IHintProxy), typeof(SmartHint), new PropertyMetadata(default(IHintProxy?), HintProxyPropertyChangedCallback));
 
-        public IHintProxy HintProxy
+        public IHintProxy? HintProxy
         {
-            get { return (IHintProxy)GetValue(HintProxyProperty); }
-            set { SetValue(HintProxyProperty, value); }
+            get => (IHintProxy)GetValue(HintProxyProperty);
+            set => SetValue(HintProxyProperty, value);
         }
 
         #endregion
@@ -45,10 +36,10 @@ namespace MaterialDesignThemes.Wpf
         public static readonly DependencyProperty HintProperty = DependencyProperty.Register(
             nameof(Hint), typeof(object), typeof(SmartHint), new PropertyMetadata(null));
 
-        public object Hint
+        public object? Hint
         {
-            get { return GetValue(HintProperty); }
-            set { SetValue(HintProperty, value); }
+            get => GetValue(HintProperty);
+            set => SetValue(HintProperty, value);
         }
 
         #endregion
@@ -65,8 +56,26 @@ namespace MaterialDesignThemes.Wpf
 
         public bool IsContentNullOrEmpty
         {
-            get { return (bool) GetValue(IsContentNullOrEmptyProperty); }
-            private set { SetValue(IsContentNullOrEmptyPropertyKey, value); }
+            get => (bool)GetValue(IsContentNullOrEmptyProperty);
+            private set => SetValue(IsContentNullOrEmptyPropertyKey, value);
+        }
+
+        #endregion
+
+        #region IsHintInFloatingPosition
+
+        private static readonly DependencyPropertyKey IsHintInFloatingPositionPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                "IsHintInFloatingPosition", typeof(bool), typeof(SmartHint),
+                new PropertyMetadata(default(bool)));
+
+        public static readonly DependencyProperty IsHintInFloatingPositionProperty =
+            IsHintInFloatingPositionPropertyKey.DependencyProperty;
+
+        public bool IsHintInFloatingPosition
+        {
+            get => (bool)GetValue(IsHintInFloatingPositionProperty);
+            private set => SetValue(IsHintInFloatingPositionPropertyKey, value);
         }
 
         #endregion
@@ -78,8 +87,8 @@ namespace MaterialDesignThemes.Wpf
 
         public bool UseFloating
         {
-            get { return (bool) GetValue(UseFloatingProperty); }
-            set { SetValue(UseFloatingProperty, value); }
+            get => (bool)GetValue(UseFloatingProperty);
+            set => SetValue(UseFloatingProperty, value);
         }
 
         #endregion
@@ -91,8 +100,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double FloatingScale
         {
-            get { return (double)GetValue(FloatingScaleProperty); }
-            set { SetValue(FloatingScaleProperty, value); }
+            get => (double)GetValue(FloatingScaleProperty);
+            set => SetValue(FloatingScaleProperty, value);
         }
 
         public static readonly DependencyProperty FloatingOffsetProperty = DependencyProperty.Register(
@@ -100,9 +109,9 @@ namespace MaterialDesignThemes.Wpf
 
         public Point FloatingOffset
         {
-            get { return (Point)GetValue(FloatingOffsetProperty); }
-            set { SetValue(FloatingOffsetProperty, value); }
-        }        
+            get => (Point)GetValue(FloatingOffsetProperty);
+            set => SetValue(FloatingOffsetProperty, value);
+        }
 
         #endregion
 
@@ -113,8 +122,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double HintOpacity
         {
-            get { return (double) GetValue(HintOpacityProperty); }
-            set { SetValue(HintOpacityProperty, value); }
+            get => (double)GetValue(HintOpacityProperty);
+            set => SetValue(HintOpacityProperty, value);
         }
 
         #endregion
@@ -124,78 +133,88 @@ namespace MaterialDesignThemes.Wpf
             DefaultStyleKeyProperty.OverrideMetadata(typeof(SmartHint), new FrameworkPropertyMetadata(typeof(SmartHint)));
         }
 
-        public SmartHint()
-        {
-            IsHitTestVisible = false;
-            HorizontalAlignment = HorizontalAlignment.Left;
-            VerticalAlignment = VerticalAlignment.Top;
-        }
-
-        private static void HintProxyPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        private static void HintProxyPropertyChangedCallback(DependencyObject? dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
             var smartHint = dependencyObject as SmartHint;
-            if (smartHint == null) return;
+            if (smartHint is null) return;
 
-            var hintProxy = dependencyPropertyChangedEventArgs.OldValue as IHintProxy;
-
-            if (hintProxy != null)
+            if (dependencyPropertyChangedEventArgs.OldValue is IHintProxy oldHintProxy)
             {
-                hintProxy.IsVisibleChanged -= smartHint.OnHintProxyIsVisibleChanged;
-                hintProxy.ContentChanged -= smartHint.OnHintProxyContentChanged;
-                hintProxy.Loaded -= smartHint.OnHintProxyContentChanged;
-                hintProxy.Dispose();
+                oldHintProxy.IsVisibleChanged -= smartHint.OnHintProxyIsVisibleChanged;
+                oldHintProxy.ContentChanged -= smartHint.OnHintProxyContentChanged;
+                oldHintProxy.Loaded -= smartHint.OnHintProxyContentChanged;
+                oldHintProxy.FocusedChanged -= smartHint.OnHintProxyFocusedChanged;
+                oldHintProxy.Dispose();
             }
 
-            hintProxy = dependencyPropertyChangedEventArgs.NewValue as IHintProxy;
-            if (hintProxy == null) return;
-
-            hintProxy.IsVisibleChanged += smartHint.OnHintProxyIsVisibleChanged;
-            hintProxy.ContentChanged += smartHint.OnHintProxyContentChanged;
-            hintProxy.Loaded += smartHint.OnHintProxyContentChanged;
-            smartHint.RefreshState(false);
+            if (dependencyPropertyChangedEventArgs.NewValue is IHintProxy newHintProxy)
+            {
+                newHintProxy.IsVisibleChanged += smartHint.OnHintProxyIsVisibleChanged;
+                newHintProxy.ContentChanged += smartHint.OnHintProxyContentChanged;
+                newHintProxy.Loaded += smartHint.OnHintProxyContentChanged;
+                newHintProxy.FocusedChanged += smartHint.OnHintProxyFocusedChanged;
+                smartHint.RefreshState(false);
+            }
         }
 
-        protected virtual void OnHintProxyContentChanged(object sender, EventArgs e)
+        protected virtual void OnHintProxyFocusedChanged(object? sender, EventArgs e)
         {
-            IsContentNullOrEmpty = HintProxy.IsEmpty();
-
-            if (HintProxy.IsLoaded)
+            if (HintProxy is { } hintProxy)
             {
-                RefreshState(true);
-            }
-            else
-            {
-                HintProxy.Loaded += HintProxySetStateOnLoaded;
+                if (hintProxy.IsLoaded)
+                    RefreshState(true);
+                else
+                    hintProxy.Loaded += HintProxySetStateOnLoaded;
             }
         }
 
-        private void HintProxySetStateOnLoaded(object sender, EventArgs e)
+        protected virtual void OnHintProxyContentChanged(object? sender, EventArgs e)
+        {
+            IsContentNullOrEmpty = HintProxy?.IsEmpty() == true;
+
+            if (HintProxy is { } hintProxy)
+            {
+                if (hintProxy.IsLoaded)
+                    RefreshState(true);
+                else
+                    hintProxy.Loaded += HintProxySetStateOnLoaded;
+            }
+        }
+
+        private void HintProxySetStateOnLoaded(object? sender, EventArgs e)
         {
             RefreshState(false);
-            HintProxy.Loaded -= HintProxySetStateOnLoaded;
+            if (HintProxy is { } hintProxy)
+            {
+                hintProxy.Loaded -= HintProxySetStateOnLoaded;
+            }
         }
 
-        protected virtual void OnHintProxyIsVisibleChanged(object sender, EventArgs e)
-        {
-            RefreshState(false);
-        }
+        protected virtual void OnHintProxyIsVisibleChanged(object? sender, EventArgs e)
+            => RefreshState(false);
 
         private void RefreshState(bool useTransitions)
         {
-            var proxy = HintProxy;
+            IHintProxy? proxy = HintProxy;
 
-            if (proxy == null) return;
+            if (proxy is null) return;
             if (!proxy.IsVisible) return;
-            
+
             var action = new Action(() =>
             {
-                var isEmpty = proxy.IsEmpty();
+                string state = string.Empty;
 
-                var state = isEmpty
-                    ? ContentEmptyName
-                    : ContentNotEmptyName;
-            
-                VisualStateManager.GoToState(this, state, useTransitions);                
+                bool isEmpty = proxy.IsEmpty();
+                bool isFocused = proxy.IsFocused();
+
+                if (UseFloating)
+                    state = !isEmpty || isFocused ? HintFloatingPositionName : HintRestingPositionName;
+                else
+                    state = !isEmpty ? HintFloatingPositionName : HintRestingPositionName;
+
+                IsHintInFloatingPosition = state == HintFloatingPositionName;
+
+                VisualStateManager.GoToState(this, state, useTransitions);
             });
 
             if (DesignerProperties.GetIsInDesignMode(this))
@@ -206,6 +225,6 @@ namespace MaterialDesignThemes.Wpf
             {
                 Dispatcher.BeginInvoke(action);
             }
-        }        
+        }
     }
 }

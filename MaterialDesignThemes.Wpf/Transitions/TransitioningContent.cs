@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows;
-
-namespace MaterialDesignThemes.Wpf.Transitions
+﻿namespace MaterialDesignThemes.Wpf.Transitions
 {
     [Flags]
     public enum TransitioningContentRunHint
@@ -26,16 +23,16 @@ namespace MaterialDesignThemes.Wpf.Transitions
         {
             Loaded += (sender, args) => Run(TransitioningContentRunHint.Loaded);
             IsVisibleChanged += (sender, args) => Run(TransitioningContentRunHint.IsVisibleChanged);
-            
+
         }
 
         public static readonly DependencyProperty RunHintProperty = DependencyProperty.Register(
-            "RunHint", typeof(TransitioningContentRunHint), typeof(TransitioningContent), new PropertyMetadata(TransitioningContentRunHint.All));
+            nameof(RunHint), typeof(TransitioningContentRunHint), typeof(TransitioningContent), new PropertyMetadata(TransitioningContentRunHint.All));
 
         public TransitioningContentRunHint RunHint
         {
-            get { return (TransitioningContentRunHint)GetValue(RunHintProperty); }
-            set { SetValue(RunHintProperty, value); }
+            get => (TransitioningContentRunHint)GetValue(RunHintProperty);
+            set => SetValue(RunHintProperty, value);
         }
 
         private void Run(TransitioningContentRunHint requiredHint)

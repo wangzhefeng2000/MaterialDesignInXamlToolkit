@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows;
-
-namespace MaterialDesignThemes.Wpf
+﻿namespace MaterialDesignThemes.Wpf
 {
     public class DialogOpenedEventArgs : RoutedEventArgs
     {
@@ -14,7 +11,7 @@ namespace MaterialDesignThemes.Wpf
         }
 
         /// <summary>
-        /// Allows interation with the current dialog session.
+        /// Allows interaction with the current dialog session.
         /// </summary>
         public DialogSession Session { get; }
     }

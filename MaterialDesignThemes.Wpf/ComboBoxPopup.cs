@@ -1,52 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace MaterialDesignThemes.Wpf
 {
-    public enum ComboBoxPopupPlacement
+    public enum PopupDirection
     {
-        Undefined,
-        Down,
-        Up, 
-        Classic
+        None,
+        Up,
+        Down
     }
 
     public class ComboBoxPopup : Popup
     {
         #region UpContentTemplate property
-
+        [Obsolete("UpContentTemplate is now obsolete and has no affect.")]
         public static readonly DependencyProperty UpContentTemplateProperty
             = DependencyProperty.Register(nameof(UpContentTemplate),
                 typeof(ControlTemplate),
                 typeof(ComboBoxPopup),
-                new UIPropertyMetadata(null, CreateTemplatePropertyChangedCallback(ComboBoxPopupPlacement.Classic)));
+                new PropertyMetadata(null));
 
-        public ControlTemplate UpContentTemplate
+        [Obsolete("UpContentTemplate is now obsolete and has no affect.")]
+        public ControlTemplate? UpContentTemplate
         {
-            get { return (ControlTemplate)GetValue(UpContentTemplateProperty); }
-            set { SetValue(UpContentTemplateProperty, value); }
+            get => (ControlTemplate?)GetValue(UpContentTemplateProperty);
+            set => SetValue(UpContentTemplateProperty, value);
         }
 
         #endregion
 
         #region DownContentTemplate region
-
+        [Obsolete("DownContentTemplate is now obsolete and has no affect.")]
         public static readonly DependencyProperty DownContentTemplateProperty
             = DependencyProperty.Register(nameof(DownContentTemplate),
                 typeof(ControlTemplate),
                 typeof(ComboBoxPopup),
-                new UIPropertyMetadata(null, CreateTemplatePropertyChangedCallback(ComboBoxPopupPlacement.Down)));
+                new PropertyMetadata(null));
 
-        public ControlTemplate DownContentTemplate
+        [Obsolete("DownContentTemplate is now obsolete and has no affect.")]
+        public ControlTemplate? DownContentTemplate
         {
-            get { return (ControlTemplate)GetValue(DownContentTemplateProperty); }
-            set { SetValue(DownContentTemplateProperty, value); }
+            get => (ControlTemplate?)GetValue(DownContentTemplateProperty);
+            set => SetValue(DownContentTemplateProperty, value);
         }
 
         #endregion
@@ -57,12 +51,12 @@ namespace MaterialDesignThemes.Wpf
             = DependencyProperty.Register(nameof(ClassicContentTemplate),
                 typeof(ControlTemplate),
                 typeof(ComboBoxPopup),
-                new UIPropertyMetadata(null, CreateTemplatePropertyChangedCallback(ComboBoxPopupPlacement.Up)));
+                new PropertyMetadata(null));
 
-        public ControlTemplate ClassicContentTemplate
+        public ControlTemplate? ClassicContentTemplate
         {
-            get { return (ControlTemplate)GetValue(ClassicContentTemplateProperty); }
-            set { SetValue(ClassicContentTemplateProperty, value); }
+            get => (ControlTemplate?)GetValue(ClassicContentTemplateProperty);
+            set => SetValue(ClassicContentTemplateProperty, value);
         }
 
         #endregion
@@ -77,8 +71,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double UpVerticalOffset
         {
-            get { return (double)GetValue(UpVerticalOffsetProperty); }
-            set { SetValue(UpVerticalOffsetProperty, value); }
+            get => (double)GetValue(UpVerticalOffsetProperty);
+            set => SetValue(UpVerticalOffsetProperty, value);
         }
 
         #endregion
@@ -93,42 +87,41 @@ namespace MaterialDesignThemes.Wpf
 
         public double DownVerticalOffset
         {
-            get { return (double)GetValue(DownVerticalOffsetProperty); }
-            set { SetValue(DownVerticalOffsetProperty, value); }
+            get => (double)GetValue(DownVerticalOffsetProperty);
+            set => SetValue(DownVerticalOffsetProperty, value);
         }
 
         #endregion
 
         #region PopupPlacement property
 
+        [Obsolete("PopupPlacement is now obsolete and has no affect.")]
         public static readonly DependencyProperty PopupPlacementProperty
             = DependencyProperty.Register(nameof(PopupPlacement),
                 typeof(ComboBoxPopupPlacement),
                 typeof(ComboBoxPopup),
-                new PropertyMetadata(ComboBoxPopupPlacement.Undefined, PopupPlacementPropertyChangedCallback));
+                new PropertyMetadata(ComboBoxPopupPlacement.Undefined));
 
+        [Obsolete("PopupPlacement is now obsolete and has no affect.")]
         public ComboBoxPopupPlacement PopupPlacement
         {
-            get { return (ComboBoxPopupPlacement)GetValue(PopupPlacementProperty); }
-            set { SetValue(PopupPlacementProperty, value); }
+            get => (ComboBoxPopupPlacement)GetValue(PopupPlacementProperty);
+            set => SetValue(PopupPlacementProperty, value);
         }
 
         #endregion
-        
+
         #region Background property
 
-        private static readonly DependencyPropertyKey BackgroundPropertyKey =
-            DependencyProperty.RegisterReadOnly(
+        private static readonly DependencyProperty BackgroundProperty =
+            DependencyProperty.Register(
                 "Background", typeof(Brush), typeof(ComboBoxPopup),
                 new PropertyMetadata(default(Brush)));
 
-        public static readonly DependencyProperty BackgroundProperty =
-            BackgroundPropertyKey.DependencyProperty;
-
-        public Brush Background
+        public Brush? Background
         {
-            get { return (Brush) GetValue(BackgroundProperty); }
-            private set { SetValue(BackgroundPropertyKey, value); }
+            get => (Brush?)GetValue(BackgroundProperty);
+            set => SetValue(BackgroundProperty, value);
         }
 
         #endregion
@@ -143,8 +136,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double DefaultVerticalOffset
         {
-            get { return (double)GetValue(DefaultVerticalOffsetProperty); }
-            set { SetValue(DefaultVerticalOffsetProperty, value); }
+            get => (double)GetValue(DefaultVerticalOffsetProperty);
+            set => SetValue(DefaultVerticalOffsetProperty, value);
         }
 
         #endregion
@@ -153,8 +146,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double VisiblePlacementWidth
         {
-            get { return (double)GetValue(VisiblePlacementWidthProperty); }
-            set { SetValue(VisiblePlacementWidthProperty, value); }
+            get => (double)GetValue(VisiblePlacementWidthProperty);
+            set => SetValue(VisiblePlacementWidthProperty, value);
         }
 
         public static readonly DependencyProperty VisiblePlacementWidthProperty
@@ -167,6 +160,7 @@ namespace MaterialDesignThemes.Wpf
 
         #region ClassicMode property
 
+        [Obsolete("ClassicMode is now obsolete and has no affect.")]
         public static readonly DependencyProperty ClassicModeProperty
             = DependencyProperty.Register(
                 nameof(ClassicMode),
@@ -174,53 +168,106 @@ namespace MaterialDesignThemes.Wpf
                 typeof(ComboBoxPopup),
                 new FrameworkPropertyMetadata(true));
 
+        [Obsolete("ClassicMode is now obsolete and has no affect.")]
         public bool ClassicMode
         {
-            get { return (bool)GetValue(ClassicModeProperty); }
-            set { SetValue(ClassicModeProperty, value); }
+            get => (bool)GetValue(ClassicModeProperty);
+            set => SetValue(ClassicModeProperty, value);
         }
 
         #endregion
 
-        public ComboBoxPopup()
+        #region CornerRadius
+        public static readonly DependencyProperty CornerRadiusProperty
+            = DependencyProperty.Register(
+                nameof(CornerRadius),
+                typeof(CornerRadius),
+                typeof(ComboBoxPopup),
+                new FrameworkPropertyMetadata(default(CornerRadius)));
+
+        public CornerRadius CornerRadius
         {
-            CustomPopupPlacementCallback = ComboBoxCustomPopupPlacementCallback;
-            var childPropertyDescriptor = DependencyPropertyDescriptor.FromProperty(ComboBoxPopup.ChildProperty, typeof(ComboBoxPopup));
-            EventHandler childChangedHandler = (sender, x) =>
-            {
-                if (PopupPlacement != ComboBoxPopupPlacement.Undefined)
-                {
-                    UpdateChildTemplate(PopupPlacement);
-                }
-            };
-
-            Loaded += (sender, args) =>
-            {
-                childPropertyDescriptor.AddValueChanged(this, childChangedHandler);
-            };
-
-            Unloaded += (sender, args) =>
-            {
-                childPropertyDescriptor.RemoveValueChanged(this, childChangedHandler);
-            };
+            get => (CornerRadius)GetValue(CornerRadiusProperty);
+            set => SetValue(CornerRadiusProperty, value);
         }
 
-        private void SetupBackground(IEnumerable<DependencyObject> visualAncestry)
-        {
-            var background = visualAncestry
-                .Select(v => (v as Control)?.Background ?? (v as Panel)?.Background ?? (v as Border)?.Background)
-                .FirstOrDefault(v => v != null && !Equals(v, Brushes.Transparent) && v is SolidColorBrush);
+        #endregion CornerRadius
 
-            if (background != null)
+        #region ContentMargin
+
+        public static readonly DependencyProperty ContentMarginProperty
+            = DependencyProperty.Register(
+                nameof(ContentMargin),
+                typeof(Thickness),
+                typeof(ComboBoxPopup),
+                new FrameworkPropertyMetadata(default(Thickness)));
+
+        public Thickness ContentMargin
+        {
+            get => (Thickness)GetValue(ContentMarginProperty);
+            set => SetValue(ContentMarginProperty, value);
+        }
+
+        #endregion ContentMargin
+
+        #region ContentMinWidth
+        public static readonly DependencyProperty ContentMinWidthProperty
+            = DependencyProperty.Register(
+                nameof(ContentMinWidth),
+                typeof(double),
+                typeof(ComboBoxPopup),
+                new FrameworkPropertyMetadata(default(double)));
+
+        public double ContentMinWidth
+        {
+            get => (double)GetValue(ContentMinWidthProperty);
+            set => SetValue(ContentMinWidthProperty, value);
+        }
+        #endregion ContentMinWidth
+
+        #region RelativeHorizontalOffset
+
+        public static readonly DependencyProperty RelativeHorizontalOffsetProperty
+            = DependencyProperty.Register(
+                nameof(RelativeHorizontalOffset), typeof(double), typeof(ComboBoxPopup),
+                new FrameworkPropertyMetadata(default(double)));
+
+        public double RelativeHorizontalOffset
+        {
+            get => (double)GetValue(RelativeHorizontalOffsetProperty);
+            set => SetValue(RelativeHorizontalOffsetProperty, value);
+        }
+        #endregion RelativeHorizontalOffset
+
+        public PopupDirection OpenDirection
+        {
+            get => (PopupDirection)GetValue(OpenDirectionProperty);
+            set => SetValue(OpenDirectionProperty, value);
+        }
+
+        // Using a DependencyProperty as the backing store for OpenDirection.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OpenDirectionProperty =
+            DependencyProperty.Register(nameof(OpenDirection), typeof(PopupDirection),
+                typeof(ComboBoxPopup), new PropertyMetadata(PopupDirection.None));
+
+        public ComboBoxPopup()
+            => CustomPopupPlacementCallback = ComboBoxCustomPopupPlacementCallback;
+
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+            if (e.Property == ChildProperty &&
+                Child is ContentControl contentControl &&
+                !ReferenceEquals(contentControl.Template, ClassicContentTemplate))
             {
-                Background = background;
+                contentControl.Template = ClassicContentTemplate;
             }
         }
 
-        private void SetupVisiblePlacementWidth(IEnumerable<DependencyObject> visualAncestry)
+        protected override void OnClosed(EventArgs e)
         {
-            var parent = visualAncestry.OfType<Panel>().ElementAt(1);
-            VisiblePlacementWidth = TreeHelper.GetVisibleWidth((FrameworkElement)PlacementTarget, parent);
+            SetCurrentValue(OpenDirectionProperty, PopupDirection.None);
+            base.OnClosed(e);
         }
 
         private CustomPopupPlacement[] ComboBoxCustomPopupPlacementCallback(
@@ -228,142 +275,65 @@ namespace MaterialDesignThemes.Wpf
         {
             var visualAncestry = PlacementTarget.GetVisualAncestry().ToList();
 
-            SetupBackground(visualAncestry);
+            var parent = visualAncestry.OfType<Panel>().ElementAt(1);
+            VisiblePlacementWidth = TreeHelper.GetVisibleWidth((FrameworkElement)PlacementTarget, parent, FlowDirection);
 
-            SetupVisiblePlacementWidth(visualAncestry);
+            var data = GetPositioningData(visualAncestry, popupSize, targetSize);
 
-            var data = GetPositioningData(visualAncestry, popupSize, targetSize, offset);
-            var preferUpIfSafe = data.LocationY + data.PopupSize.Height > data.ScreenHeight;            
+            var defaultVerticalOffsetIndependent = DpiHelper.TransformToDeviceY(data.MainVisual, DefaultVerticalOffset);
 
-            if (ClassicMode 
-                || data.LocationX + data.PopupSize.Width - data.RealOffsetX > data.ScreenWidth
-                || data.LocationX - data.RealOffsetX < 0
-                || !preferUpIfSafe && data.LocationY - Math.Abs(data.NewDownY) < 0)
+            double newY;
+            PopupDirection direction;
+            if (data.LocationY + data.PopupSize.Height > data.ScreenHeight)
             {
-                SetCurrentValue(PopupPlacementProperty, ComboBoxPopupPlacement.Classic);
-                return new[] { GetClassicPopupPlacement(this, data) };
+                newY = -(defaultVerticalOffsetIndependent + data.PopupSize.Height);
+                direction = PopupDirection.Up;
             }
-            if (preferUpIfSafe)
-            {
-                SetCurrentValue(PopupPlacementProperty, ComboBoxPopupPlacement.Up);
-                return new[] { GetUpPopupPlacement(data) };
-            }
-            SetCurrentValue(PopupPlacementProperty, ComboBoxPopupPlacement.Down);
-            return new[] { GetDownPopupPlacement(data) };
-        }
-
-        private void SetChildTemplateIfNeed(ControlTemplate template)
-        {
-            var contentControl = Child as ContentControl;
-            if (contentControl == null) return;
-            //throw new InvalidOperationException($"The type of {nameof(Child)} must be {nameof(ContentControl)}");
-
-            if (!ReferenceEquals(contentControl.Template, template))
-            {
-                contentControl.Template = template;
-            }
-        }
-
-        private PositioningData GetPositioningData(IEnumerable<DependencyObject> visualAncestry, Size popupSize, Size targetSize, Point offset)
-        {
-            var locationFromScreen = PlacementTarget.PointToScreen(new Point(0, 0));
-
-            var mainVisual = visualAncestry.OfType<Visual>().LastOrDefault();
-            if (mainVisual == null) throw new ArgumentException($"{nameof(visualAncestry)} must contains unless one {nameof(Visual)} control inside.");
-
-            var screen = Screen.FromPoint(locationFromScreen);
-            var screenWidth = (int)DpiHelper.TransformToDeviceX(mainVisual, (int)screen.Bounds.Width);
-            var screenHeight = (int)DpiHelper.TransformToDeviceY(mainVisual, (int)screen.Bounds.Height);
-
-            //Adjust the location to be in terms of the current screen
-            var locationX = (int)locationFromScreen.X % screenWidth - screen.Bounds.X;
-            var locationY = (int)locationFromScreen.Y % screenHeight - screen.Bounds.Y;
-
-            var upVerticalOffsetIndepent = DpiHelper.TransformToDeviceY(mainVisual, UpVerticalOffset);
-            var newUpY = upVerticalOffsetIndepent - popupSize.Height + targetSize.Height;
-            var newDownY = DpiHelper.TransformToDeviceY(mainVisual, DownVerticalOffset);
-
-            double offsetX;
-            const int rtlHorizontalOffset = 20;
-
-            if (FlowDirection == FlowDirection.LeftToRight)
-                offsetX = DpiHelper.TransformToDeviceX(mainVisual, offset.X);
             else
-                offsetX = DpiHelper.TransformToDeviceX(mainVisual,
-                    offset.X - targetSize.Width - rtlHorizontalOffset);
-
-            return new PositioningData(
-                mainVisual, offsetX,
-                newUpY, newDownY,
-                popupSize, targetSize,
-                locationX, locationY,
-                screenHeight, screenWidth);
-        }
-
-        private static PropertyChangedCallback CreateTemplatePropertyChangedCallback(ComboBoxPopupPlacement popupPlacement)
-        {
-            return delegate (DependencyObject d, DependencyPropertyChangedEventArgs e)
             {
-                var popup = d as ComboBoxPopup;
-                if (popup == null) return;
+                newY = defaultVerticalOffsetIndependent + data.TargetSize.Height;
+                direction = PopupDirection.Down;
+            }
 
-                var template = e.NewValue as ControlTemplate;
-                if (template == null) return;
+            SetCurrentValue(OpenDirectionProperty, direction);
+            return new[] { new CustomPopupPlacement(new Point(data.OffsetX, newY), PopupPrimaryAxis.Horizontal) };
 
-                if (popup.PopupPlacement == popupPlacement)
-                {
-                    popup.SetChildTemplateIfNeed(template);
-                }
-            };
-        }
-
-        private void UpdateChildTemplate(ComboBoxPopupPlacement placement)
-        {
-            switch (placement)
+            PositioningData GetPositioningData(IEnumerable<DependencyObject?> visualAncestry, Size popupSize, Size targetSize)
             {
-                case ComboBoxPopupPlacement.Classic:
-                    SetChildTemplateIfNeed(ClassicContentTemplate);
-                    break;
-                case ComboBoxPopupPlacement.Down:
-                    SetChildTemplateIfNeed(DownContentTemplate);
-                    break;
-                case ComboBoxPopupPlacement.Up:
-                    SetChildTemplateIfNeed(UpContentTemplate);
-                    break;
-//                default:
-//                    throw new NotImplementedException($"Unexpected value {placement} of the {nameof(PopupPlacement)} property inside the {nameof(ComboBoxPopup)} control.");
+                var locationFromScreen = PlacementTarget.PointToScreen(new Point(0, 0));
+
+                var mainVisual = visualAncestry.OfType<Visual>().LastOrDefault();
+                if (mainVisual is null) throw new ArgumentException($"{nameof(visualAncestry)} must contains unless one {nameof(Visual)} control inside.");
+
+                var controlVisual = visualAncestry.OfType<Visual>().FirstOrDefault();
+                if (controlVisual == null) throw new ArgumentException($"{nameof(visualAncestry)} must contains unless one {nameof(Visual)} control inside.");
+
+                var screen = Screen.FromPoint(locationFromScreen);
+                var screenWidth = (int)screen.Bounds.Width;
+                var screenHeight = (int)screen.Bounds.Height;
+
+                //Adjust the location to be in terms of the current screen
+                var locationX = (int)(locationFromScreen.X - screen.Bounds.X) % screenWidth;
+                var locationY = (int)(locationFromScreen.Y - screen.Bounds.Y) % screenHeight;
+
+                var upVerticalOffsetIndependent = DpiHelper.TransformToDeviceY(mainVisual, UpVerticalOffset) * ScaleHelper.GetTotalTransformScaleY(controlVisual);
+                var newUpY = upVerticalOffsetIndependent - popupSize.Height + targetSize.Height;
+                var newDownY = DpiHelper.TransformToDeviceY(mainVisual, DownVerticalOffset) * ScaleHelper.GetTotalTransformScaleY(controlVisual);
+                var offsetX = DpiHelper.TransformToDeviceX(mainVisual, RelativeHorizontalOffset) * ScaleHelper.GetTotalTransformScaleX(controlVisual);
+                offsetX = FlowDirection == FlowDirection.LeftToRight
+                    ? Round(offsetX)
+                    : Math.Truncate(offsetX - targetSize.Width);
+
+                return new PositioningData(
+                    mainVisual, offsetX,
+                    newUpY, newDownY,
+                    popupSize, targetSize,
+                    locationX, locationY,
+                    screenHeight, screenWidth);
             }
         }
 
-        private static void PopupPlacementPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var popup = d as ComboBoxPopup;
-            if (popup == null) return;
-
-            if (!(e.NewValue is ComboBoxPopupPlacement)) return;
-            var placement = (ComboBoxPopupPlacement)e.NewValue;
-            popup.UpdateChildTemplate(placement);
-        }
-
-        private static CustomPopupPlacement GetClassicPopupPlacement(ComboBoxPopup popup, PositioningData data)
-        {
-            var defaultVerticalOffsetIndepent = DpiHelper.TransformToDeviceY(data.MainVisual, popup.DefaultVerticalOffset);
-            var newY = data.LocationY + data.PopupSize.Height > data.ScreenHeight
-                ? -(defaultVerticalOffsetIndepent + data.PopupSize.Height)
-                : defaultVerticalOffsetIndepent + data.TargetSize.Height;
-
-            return new CustomPopupPlacement(new Point(data.OffsetX, newY), PopupPrimaryAxis.Horizontal);
-        }
-
-        private static CustomPopupPlacement GetDownPopupPlacement(PositioningData data)
-        {            
-            return new CustomPopupPlacement(new Point(data.OffsetX, data.NewDownY), PopupPrimaryAxis.None);
-        }
-
-        private static CustomPopupPlacement GetUpPopupPlacement(PositioningData data)
-        {
-            return new CustomPopupPlacement(new Point(data.OffsetX, data.NewUpY), PopupPrimaryAxis.None);
-        }
+        private static double Round(double val) => val < 0 ? (int)(val - 0.5) : (int)(val + 0.5);
 
         private struct PositioningData
         {
@@ -371,7 +341,7 @@ namespace MaterialDesignThemes.Wpf
             public double OffsetX { get; }
             public double NewUpY { get; }
             public double NewDownY { get; }
-            public double RealOffsetX => (PopupSize.Width - TargetSize.Width) / 2.0;
+            public double PopupLocationX => LocationX + OffsetX;
             public Size PopupSize { get; }
             public Size TargetSize { get; }
             public double LocationX { get; }
@@ -382,12 +352,15 @@ namespace MaterialDesignThemes.Wpf
             public PositioningData(Visual mainVisual, double offsetX, double newUpY, double newDownY, Size popupSize, Size targetSize, double locationX, double locationY, double screenHeight, double screenWidth)
             {
                 MainVisual = mainVisual;
-                OffsetX = offsetX;
-                NewUpY = newUpY;
-                NewDownY = newDownY;
-                PopupSize = popupSize; TargetSize = targetSize;
-                LocationX = locationX; LocationY = locationY;
-                ScreenWidth = screenWidth; ScreenHeight = screenHeight;
+                OffsetX = Round(offsetX);
+                NewUpY = Round(newUpY);
+                NewDownY = Round(newDownY);
+                PopupSize = popupSize;
+                TargetSize = targetSize;
+                LocationX = locationX;
+                LocationY = locationY;
+                ScreenWidth = screenWidth;
+                ScreenHeight = screenHeight;
             }
         }
     }

@@ -1,12 +1,8 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Text.RegularExpressions;
-using System.Windows;
 using System.Windows.Media;
 
 namespace MaterialDesignColors
@@ -26,14 +22,14 @@ namespace MaterialDesignColors
             var resourcesName = assembly.GetName().Name + ".g";
             var manager = new ResourceManager(resourcesName, assembly);
             var resourceSet = manager.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
-            var dictionaryEntries = resourceSet.OfType<DictionaryEntry>().ToList();
-            var assemblyName = assembly.GetName().Name;
+            var dictionaryEntries = resourceSet?.OfType<DictionaryEntry>().ToList();
+            string? assemblyName = assembly.GetName().Name;
 
             var regex = new Regex(@"^themes\/materialdesigncolor\.(?<name>[a-z]+)\.(?<type>primary|accent)\.baml$");
 
             Swatches =
-                dictionaryEntries
-                .Select(x => new { key = x.Key.ToString(), match = regex.Match(x.Key.ToString()) })
+                dictionaryEntries?
+                .Select(x => new { key = x.Key.ToString(), match = regex.Match(x.Key.ToString() ?? "") })
                 .Where(x => x.match.Success && x.match.Groups["name"].Value != "black")
                 .GroupBy(x => x.match.Groups["name"].Value)
                 .Select(x =>
@@ -43,7 +39,12 @@ namespace MaterialDesignColors
                     Read(assemblyName, x.SingleOrDefault(y => y.match.Groups["type"].Value == "primary")?.key),
                     Read(assemblyName, x.SingleOrDefault(y => y.match.Groups["type"].Value == "accent")?.key)
                 ))
-                .ToList();
+                .ToList() ??
+#if NETCOREAPP3_1_OR_GREATER
+                (IEnumerable<Swatch>)Array.Empty<Swatch>();
+#else
+                (IEnumerable<Swatch>)new Swatch[0];
+#endif
         }
 
         /// <summary>
@@ -54,49 +55,47 @@ namespace MaterialDesignColors
 
         public IEnumerable<Swatch> Swatches { get; }
 
-        private static Swatch CreateSwatch(string name, ResourceDictionary primaryDictionary, ResourceDictionary accentDictionary)
+        private static Swatch CreateSwatch(string name, ResourceDictionary? primaryDictionary, ResourceDictionary? accentDictionary)
         {
-            var primaryHues = new List<Hue>();
-            var accentHues = new List<Hue>();
+            return new Swatch(name, GetHues(primaryDictionary), GetHues(accentDictionary));
 
-            if (primaryDictionary != null)
+            static List<Hue> GetHues(ResourceDictionary? resourceDictionary)
             {
-                foreach (var entry in primaryDictionary.OfType<DictionaryEntry>()
-                    .OrderBy(de => de.Key)
-                    .Where(de => !de.Key.ToString().EndsWith("Foreground", StringComparison.Ordinal)))
+                var hues = new List<Hue>();
+                if (resourceDictionary != null)
                 {
-                    var colour = (Color)entry.Value;
-                    var foregroundColour = (Color)
-                        primaryDictionary.OfType<DictionaryEntry>()
-                            .Single(de => de.Key.ToString().Equals(entry.Key.ToString() + "Foreground"))
-                            .Value;
+                    foreach (var entry in resourceDictionary.OfType<DictionaryEntry>()
+                        .OrderBy(de => de.Key)
+                        .Where(de => !(de.Key.ToString() ?? "").EndsWith("Foreground", StringComparison.Ordinal)))
+                    {
 
-                    primaryHues.Add(new Hue(entry.Key.ToString(), colour, foregroundColour));
+                        hues.Add(GetHue(resourceDictionary, entry));
+                    }
                 }
+                return hues;
             }
 
-            if (accentDictionary != null)
+            static Hue GetHue(ResourceDictionary dictionary, DictionaryEntry entry)
             {
-                foreach (var entry in accentDictionary.OfType<DictionaryEntry>()
-                    .OrderBy(de => de.Key)
-                    .Where(de => !de.Key.ToString().EndsWith("Foreground", StringComparison.Ordinal)))
+                if (!(entry.Value is Color colour))
                 {
-                    var colour = (Color)entry.Value;
-                    var foregroundColour = (Color)
-                        accentDictionary.OfType<DictionaryEntry>()
-                            .Single(de => de.Key.ToString().Equals(entry.Key.ToString() + "Foreground"))
-                            .Value;
-
-                    accentHues.Add(new Hue(entry.Key.ToString(), colour, foregroundColour));
+                    throw new InvalidOperationException($"Entry {entry.Key} was not of type {nameof(Color)}");
                 }
-            }
+                string foregroundKey = entry.Key?.ToString() + "Foreground";
+                if (!(dictionary.OfType<DictionaryEntry>()
+                        .Single(de => string.Equals(de.Key.ToString(), foregroundKey, StringComparison.Ordinal))
+                        .Value is Color foregroundColour))
+                {
+                    throw new InvalidOperationException($"Entry {foregroundKey} was not of type {nameof(Color)}");
+                }
 
-            return new Swatch(name, primaryHues, accentHues);
+                return new Hue(entry.Key?.ToString() ?? "", colour, foregroundColour);
+            }
         }
 
-        private static ResourceDictionary Read(string assemblyName, string path)
+        private static ResourceDictionary? Read(string? assemblyName, string? path)
         {
-            if (assemblyName == null || path == null)
+            if (assemblyName is null || path is null)
                 return null;
 
             return (ResourceDictionary)Application.LoadComponent(new Uri(

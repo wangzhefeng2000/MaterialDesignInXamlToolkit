@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace MaterialDesignThemes.Wpf
+﻿namespace MaterialDesignThemes.Wpf
 {
     /// <summary>
     /// Internal use only.
@@ -12,8 +10,8 @@ namespace MaterialDesignThemes.Wpf
 
         public double Scale
         {
-            get { return (double) GetValue(ScaleProperty); }
-            set { SetValue(ScaleProperty, value); }
+            get => (double)GetValue(ScaleProperty);
+            set => SetValue(ScaleProperty, value);
         }
     }
 }

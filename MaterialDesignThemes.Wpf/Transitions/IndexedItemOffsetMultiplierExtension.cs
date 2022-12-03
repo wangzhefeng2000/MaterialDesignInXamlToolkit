@@ -1,8 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Markup;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace MaterialDesignThemes.Wpf.Transitions
 {
@@ -68,7 +64,7 @@ namespace MaterialDesignThemes.Wpf.Transitions
                 multiplier = itemsControl.Items.IndexOf(element);
             }
 
-            if (multiplier == -1) //still not found, repeat now using datacontext
+            if (multiplier == -1) //still not found, repeat now using data context
             {
                 var frameworkElement = element as FrameworkElement;
                 if (frameworkElement != null)

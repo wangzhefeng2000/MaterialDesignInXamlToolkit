@@ -1,12 +1,9 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Markup;
 
 namespace MaterialDesignThemes.Wpf.Converters
 {
-    public class TimeToVisibilityConverter: MarkupExtension, IValueConverter
+    public class TimeToVisibilityConverter : MarkupExtension, IValueConverter
     {
         public override object ProvideValue(IServiceProvider serviceProvider)
         {

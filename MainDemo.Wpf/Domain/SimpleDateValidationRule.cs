@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Windows.Controls;
+﻿using System.Globalization;
 
 namespace MaterialDesignDemo.Domain
 {
@@ -8,11 +6,10 @@ namespace MaterialDesignDemo.Domain
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            DateTime time;
             return DateTime.TryParse((value ?? "").ToString(),
                 CultureInfo.CurrentCulture,
                 DateTimeStyles.AssumeLocal | DateTimeStyles.AllowWhiteSpaces,
-                out time)
+                out _)
                 ? ValidationResult.ValidResult
                 : new ValidationResult(false, "Invalid date");
         }
