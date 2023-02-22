@@ -26,6 +26,7 @@
   <converters:FloatingHintOffsetCalculationConverter x:Key="FloatingHintOffsetCalculationConverter" />
   <converters:ComboBoxClearButtonMarginConverter x:Key="ComboBoxClearButtonMarginConverter" />
   <converters:DoubleToThicknessConverter x:Key="DoubleToThicknessConverter" />
+  <converters:ThicknessCloneConverter x:Key="HelperTextMarginConverter" CloneEdges="Left" />
 
   <system:Double x:Key="PopupContentPresenterExtend">4</system:Double>
   <system:Double x:Key="PopupTopBottomMargin">8</system:Double>
@@ -326,7 +327,7 @@
                     Grid.Column="0"
                     Padding="{TemplateBinding Padding}">
               <Grid x:Name="InnerRoot"
-                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                     SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                     UseLayoutRounding="{TemplateBinding UseLayoutRounding}">
@@ -353,7 +354,7 @@
                 <TextBox x:Name="PART_EditableTextBox"
                          Grid.Column="1"
                          MinWidth="10"
-                         HorizontalAlignment="Stretch"
+                         HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                          HorizontalContentAlignment="Stretch"
                          CaretBrush="{TemplateBinding Foreground}"
                          IsReadOnly="{TemplateBinding IsReadOnly}"
@@ -363,7 +364,6 @@
 
                 <wpf:SmartHint x:Name="Hint"
                                Grid.Column="1"
-                               Margin="{TemplateBinding wpf:TextFieldAssist.TextBoxViewMargin}"
                                FloatingOffset="{TemplateBinding wpf:HintAssist.FloatingOffset}"
                                FloatingScale="{TemplateBinding wpf:HintAssist.FloatingScale}"
                                FontFamily="{TemplateBinding wpf:HintAssist.FontFamily}"
@@ -372,7 +372,8 @@
                                HintProxy="{Binding RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static converters:HintProxyFabricConverter.Instance}}"
                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                UseFloating="{TemplateBinding wpf:HintAssist.IsFloating}"
-                               UseLayoutRounding="{TemplateBinding UseLayoutRounding}">
+                               UseLayoutRounding="{TemplateBinding UseLayoutRounding}"
+                               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}">
                   <wpf:SmartHint.Hint>
                     <Border x:Name="HintBackgroundBorder"
                             Background="{TemplateBinding wpf:HintAssist.Background}"
@@ -399,8 +400,8 @@
                        CornerRadius="{TemplateBinding wpf:TextFieldAssist.UnderlineCornerRadius}"
                        IsActive="{Binding ElementName=PART_EditableTextBox, Path=IsKeyboardFocused}"
                        Visibility="{TemplateBinding wpf:TextFieldAssist.DecorationVisibility}" />
-        <Canvas x:Name="HelperTextWrapper" VerticalAlignment="Bottom">
-          <TextBlock Canvas.Top="2"
+        <Canvas x:Name="HelperTextWrapper" VerticalAlignment="Bottom" Margin="{TemplateBinding Padding, Converter={StaticResource HelperTextMarginConverter}}">
+          <TextBlock x:Name="HelperTextTextBlock" Canvas.Top="2"
                      MaxWidth="{Binding ActualWidth, ElementName=toggleButton}"
                      FontSize="{TemplateBinding wpf:HintAssist.HelperTextFontSize}"
                      Opacity="{TemplateBinding wpf:HintAssist.HintOpacity}"
@@ -479,12 +480,7 @@
       </Grid>
     </AdornerDecorator>
     <ControlTemplate.Triggers>
-      <Trigger Property="wpf:TextFieldAssist.HasFilledTextField" Value="True">
-        <Setter Property="Padding" Value="16,8,12,8" />
-        <Setter TargetName="HelperTextWrapper" Property="Margin" Value="16,0,0,0" />
-      </Trigger>
       <Trigger Property="wpf:TextFieldAssist.HasOutlinedTextField" Value="True">
-        <Setter TargetName="HelperTextWrapper" Property="Margin" Value="16,0,0,0" />
         <Setter TargetName="Hint" Property="FloatingOffset">
           <Setter.Value>
             <MultiBinding Converter="{StaticResource FloatingHintOffsetCalculationConverter}">
@@ -879,7 +875,7 @@
          TargetType="{x:Type ComboBox}"
          BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}">
     <Setter Property="Background" Value="{DynamicResource MaterialDesignTextFieldBoxBackground}" />
-    <Setter Property="Padding" Value="12,8,8,8" />
+    <Setter Property="Padding" Value="{x:Static wpf:Constants.FilledTextBoxDefaultPadding}" />
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Stretch" />
     <Setter Property="wpf:ComboBoxAssist.ShowSelectedItem" Value="True" />
