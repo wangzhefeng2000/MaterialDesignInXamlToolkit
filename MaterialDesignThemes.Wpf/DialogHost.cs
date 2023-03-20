@@ -367,7 +367,17 @@ namespace MaterialDesignThemes.Wpf
 
             dialogHost.CurrentSession = new DialogSession(dialogHost);
             var window = Window.GetWindow(dialogHost);
-            dialogHost._restoreFocusDialogClose = window != null ? FocusManager.GetFocusedElement(window) : null;
+            if (!dialogHost.IsRestoreFocusDisabled)
+            {
+                dialogHost._restoreFocusDialogClose = window != null ? FocusManager.GetFocusedElement(window) : null;
+
+                // Check restore focus override
+                if (dialogHost._restoreFocusDialogClose is DependencyObject dependencyObj &&
+                    GetRestoreFocusElement(dependencyObj) is { } focusOverride)
+                {
+                    dialogHost._restoreFocusDialogClose = focusOverride;
+                }
+            }
 
             //multiple ways of calling back that the dialog has opened:
             // * routed event
@@ -430,6 +440,15 @@ namespace MaterialDesignThemes.Wpf
         {
             get => GetValue(DialogContentProperty);
             set => SetValue(DialogContentProperty, value);
+        }
+
+        public static readonly DependencyProperty DialogContentUniformCornerRadiusProperty = DependencyProperty.Register(
+            nameof(DialogContentUniformCornerRadius), typeof(double), typeof(DialogHost), new PropertyMetadata(4d));
+
+        public double DialogContentUniformCornerRadius
+        {
+            get => (double)GetValue(DialogContentUniformCornerRadiusProperty);
+            set => SetValue(DialogContentUniformCornerRadiusProperty, value);
         }
 
         public static readonly DependencyProperty DialogContentTemplateProperty = DependencyProperty.Register(
@@ -592,6 +611,28 @@ namespace MaterialDesignThemes.Wpf
 
             base.OnApplyTemplate();
         }
+
+        #region restore focus properties
+
+        public static readonly DependencyProperty RestoreFocusElementProperty = DependencyProperty.RegisterAttached(
+            "RestoreFocusElement", typeof(IInputElement), typeof(DialogHost), new PropertyMetadata(default(IInputElement)));
+
+        public static void SetRestoreFocusElement(DependencyObject element, IInputElement value)
+            => element.SetValue(RestoreFocusElementProperty, value);
+
+        public static IInputElement GetRestoreFocusElement(DependencyObject element)
+            => (IInputElement) element.GetValue(RestoreFocusElementProperty);
+
+        public static readonly DependencyProperty IsRestoreFocusDisabledProperty = DependencyProperty.Register(
+            nameof(IsRestoreFocusDisabled), typeof(bool), typeof(DialogHost), new PropertyMetadata(false));
+
+        public bool IsRestoreFocusDisabled
+        {
+            get => (bool) GetValue(IsRestoreFocusDisabledProperty);
+            set => SetValue(IsRestoreFocusDisabledProperty, value);
+        }
+
+        #endregion
 
         #region open dialog events/callbacks
 
