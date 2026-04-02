@@ -1,5 +1,10 @@
 namespace MaterialDesignThemes.Wpf;
 
+public enum TabControlHeaderBehavior
+{
+    Scrolling,
+    Wrapping
+}
 public static class TabAssist
 {
     public static readonly DependencyProperty HasFilledTabProperty = DependencyProperty.RegisterAttached(
@@ -27,15 +32,15 @@ public static class TabAssist
         => element.SetValue(HeaderPanelMarginProperty, value);
 
     public static Thickness GetHeaderPanelMargin(DependencyObject element)
-        => (Thickness) element.GetValue(HeaderPanelMarginProperty);
+        => (Thickness)element.GetValue(HeaderPanelMarginProperty);
 
-    internal static Visibility GetBindableIsItemsHost(DependencyObject obj)
+    public static Visibility GetBindableIsItemsHost(DependencyObject obj)
         => (Visibility)obj.GetValue(BindableIsItemsHostProperty);
 
-    internal static void SetBindableIsItemsHost(DependencyObject obj, Visibility value)
+    public static void SetBindableIsItemsHost(DependencyObject obj, Visibility value)
         => obj.SetValue(BindableIsItemsHostProperty, value);
 
-    internal static readonly DependencyProperty BindableIsItemsHostProperty =
+    public static readonly DependencyProperty BindableIsItemsHostProperty =
         DependencyProperty.RegisterAttached("BindableIsItemsHost", typeof(Visibility), typeof(TabAssist), new PropertyMetadata(Visibility.Collapsed, OnBindableIsItemsHostChanged));
 
     private static void OnBindableIsItemsHostChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -45,4 +50,52 @@ public static class TabAssist
             panel.IsItemsHost = (Visibility)e.NewValue == Visibility.Visible;
         }
     }
+
+    public static Cursor GetTabHeaderCursor(DependencyObject obj)
+        => (Cursor)obj.GetValue(TabHeaderCursorProperty);
+
+    public static void SetTabHeaderCursor(DependencyObject obj, Cursor value)
+        => obj.SetValue(TabHeaderCursorProperty, value);
+
+    public static readonly DependencyProperty TabHeaderCursorProperty =
+        DependencyProperty.RegisterAttached("TabHeaderCursor", typeof(Cursor), typeof(TabAssist), new PropertyMetadata(Cursors.Hand));
+
+    public static TabControlHeaderBehavior GetHeaderBehavior(DependencyObject obj)
+        => (TabControlHeaderBehavior)obj.GetValue(HeaderBehaviorProperty);
+
+    public static void SetHeaderBehavior(DependencyObject obj, TabControlHeaderBehavior value)
+        => obj.SetValue(HeaderBehaviorProperty, value);
+
+    public static readonly DependencyProperty HeaderBehaviorProperty =
+        DependencyProperty.RegisterAttached("HeaderBehavior", typeof(TabControlHeaderBehavior), typeof(TabAssist),
+            new PropertyMetadata(TabControlHeaderBehavior.Scrolling));
+
+    public static double GetHeaderPadding(DependencyObject obj)
+        => (double)obj.GetValue(HeaderPaddingProperty);
+
+    public static bool GetUseHeaderPadding(DependencyObject obj)
+        => (bool)obj.GetValue(UseHeaderPaddingProperty);
+
+    public static void SetUseHeaderPadding(DependencyObject obj, bool value)
+        => obj.SetValue(UseHeaderPaddingProperty, value);
+
+    public static readonly DependencyProperty UseHeaderPaddingProperty =
+        DependencyProperty.RegisterAttached("UseHeaderPadding", typeof(bool), typeof(TabAssist), new PropertyMetadata(false));
+
+    public static void SetHeaderPadding(DependencyObject obj, double value)
+        => obj.SetValue(HeaderPaddingProperty, value);
+
+    public static readonly DependencyProperty HeaderPaddingProperty =
+        DependencyProperty.RegisterAttached("HeaderPadding", typeof(double),
+            typeof(TabAssist), new PropertyMetadata(0d));
+
+    public static TimeSpan GetScrollDuration(DependencyObject obj)
+        => (TimeSpan)obj.GetValue(ScrollDurationProperty);
+
+    public static void SetScrollDuration(DependencyObject obj, TimeSpan value)
+        => obj.SetValue(ScrollDurationProperty, value);
+
+    public static readonly DependencyProperty ScrollDurationProperty =
+        DependencyProperty.RegisterAttached("ScrollDuration", typeof(TimeSpan),
+            typeof(TabAssist), new PropertyMetadata(TimeSpan.Zero));
 }

@@ -118,17 +118,26 @@ public class UpDownBase<T, TArithmetic> : UpDownBase
 
         if (upDownBase._textBoxField is { } textBox)
         {
-            textBox.Text = e.NewValue.ToString();
+            textBox.Text = Convert.ToString(e.NewValue, CultureInfo.CurrentCulture);
         }
 
-        if (upDownBase._increaseButton is { } increaseButton)
-        {
-            increaseButton.IsEnabled = Compare(upDownBase.Value, upDownBase.Maximum) < 0;
-        }
+        upDownBase.UpdateDecreaseButtonEnabled();
+        upDownBase.UpdateIncreaseButtonEnabled();
+    }
 
-        if (upDownBase._decreaseButton is { } decreaseButton)
+    private void UpdateIncreaseButtonEnabled()
+    {
+        if (_increaseButton is { } increaseButton)
         {
-            decreaseButton.IsEnabled = Compare(upDownBase.Value, upDownBase.Minimum) > 0;
+            increaseButton.IsEnabled = Compare(Value, Maximum) < 0;
+        }
+    }
+
+    private void UpdateDecreaseButtonEnabled()
+    {
+        if (_decreaseButton is { } decreaseButton)
+        {
+            decreaseButton.IsEnabled = Compare(Value, Minimum) > 0;
         }
     }
 
@@ -192,34 +201,50 @@ public class UpDownBase<T, TArithmetic> : UpDownBase
         if (_decreaseButton != null)
             _decreaseButton.Click -= DecreaseButtonOnClick;
         if (_textBoxField != null)
-            _textBoxField.TextChanged -= OnTextBoxFocusLost;
+        {
+            _textBoxField.TextChanged -= OnTextBoxTextChanged;
+            _textBoxField.LostFocus -= OnTextBoxLostFocus;
+        }
 
         base.OnApplyTemplate();
 
         if (_increaseButton != null)
+        {
             _increaseButton.Click += IncreaseButtonOnClick;
+            UpdateIncreaseButtonEnabled();
+        }
 
         if (_decreaseButton != null)
+        {
             _decreaseButton.Click += DecreaseButtonOnClick;
+            UpdateDecreaseButtonEnabled();
+        }
 
         if (_textBoxField != null)
         {
-            _textBoxField.LostFocus += OnTextBoxFocusLost;
-            _textBoxField.Text = Value?.ToString();
+            _textBoxField.TextChanged += OnTextBoxTextChanged;
+            _textBoxField.LostFocus += OnTextBoxLostFocus;
+            _textBoxField.Text = Convert.ToString(Value, CultureInfo.CurrentCulture);
         }
 
     }
 
-    private void OnTextBoxFocusLost(object sender, EventArgs e)
+    private void OnTextBoxLostFocus(object sender, EventArgs e)
     {
         if (_textBoxField is { } textBoxField)
         {
-            if (TryParse(textBoxField.Text, CultureInfo.CurrentUICulture, out T? value))
+            textBoxField.Text = Convert.ToString(Value, CultureInfo.CurrentCulture);
+        }
+    }
+
+    private void OnTextBoxTextChanged(object sender, EventArgs e)
+    {
+        if (_textBoxField is { } textBoxField)
+        {
+            if (TryParse(textBoxField.Text, CultureInfo.CurrentCulture, out T? value))
             {
                 SetCurrentValue(ValueProperty, ClampValue(value));
             }
-            //NB: Because setting ValueProperty will coerce the value, we re-assign back to the textbox here.
-            textBoxField.Text = Value?.ToString();
         }
     }
 

@@ -28,10 +28,10 @@
 
                             <Border>
                                 <Border.Background>
-                                    <VisualBrush Visual="{Binding ElementName=PART_MonthView}" Stretch="UniformToFill"/>
+                                    <VisualBrush Visual="{Binding ElementName=PART_MonthView}" Stretch="UniformToFill" />
                                 </Border.Background>
                                 <Border.RenderTransform>
-                                    <TranslateTransform X="0"/>
+                                    <TranslateTransform X="0" />
                                 </Border.RenderTransform>
                             </Border>
 
@@ -63,7 +63,7 @@
                             <ContentControl Grid.Column="1" Content="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=wpf:Chip}, Path=Content}"
                                             FontSize="13" />
                             <ContentControl Grid.Column="1" Grid.Row="1" Content="{TemplateBinding Content}"
-                                            FontSize="11"/>
+                                            FontSize="11" />
                         </Grid>
                     </wpf:Card>
                 </ControlTemplate>
@@ -81,6 +81,7 @@
     <Setter Property="IconBackground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
     <Setter Property="IconForeground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}" />
     <Setter Property="Margin" Value="4" />
+    <Setter Property="Padding" Value="8,0,12,0" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type wpf:Chip}">
@@ -123,7 +124,7 @@
             </ContentControl>
             <ContentControl x:Name="TextBlock"
                             Grid.Column="1"
-                            Margin="8,0,12,0"
+                            Margin="{TemplateBinding Padding}"
                             VerticalAlignment="Center"
                             Content="{TemplateBinding Content}"
                             ContentStringFormat="{TemplateBinding ContentStringFormat}"
@@ -160,14 +161,14 @@
               </Button.Template>
             </Button>
           </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger SourceName="IconControl" Property="Visibility" Value="Collapsed">
-              <Setter TargetName="TextBlock" Property="Margin" Value="12,0,12,0" />
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Style.Triggers>
+      <Trigger Property="Icon" Value="{x:Null}">
+        <Setter Property="Padding" Value="12,0" />
+      </Trigger>
+    </Style.Triggers>
   </Style>
 
   <Style x:Key="MaterialDesignOutlineChip" TargetType="{x:Type wpf:Chip}">
@@ -175,6 +176,7 @@
     <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesign.Brush.Chip.OutlineBorder}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Foreground}" />
+    <Setter Property="Padding" Value="8,0,12,0" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type wpf:Chip}">
@@ -248,7 +250,7 @@
             </ContentControl>
             <ContentControl x:Name="TextBlock"
                             Grid.Column="1"
-                            Margin="8,0,12,0"
+                            Margin="{TemplateBinding Padding}"
                             VerticalAlignment="Center"
                             Content="{TemplateBinding Content}"
                             ContentStringFormat="{TemplateBinding ContentStringFormat}"
@@ -285,13 +287,13 @@
               </Button.Template>
             </Button>
           </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger SourceName="IconControl" Property="Visibility" Value="Collapsed">
-              <Setter TargetName="TextBlock" Property="Margin" Value="12,0,12,0" />
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Style.Triggers>
+      <Trigger Property="Icon" Value="{x:Null}">
+        <Setter Property="Padding" Value="12,0" />
+      </Trigger>
+    </Style.Triggers>
   </Style>
 </ResourceDictionary>

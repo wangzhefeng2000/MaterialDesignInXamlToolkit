@@ -157,7 +157,6 @@
                           </Setter.Value>
                         </Setter>
                       </DataTrigger>
-
                     </Style.Triggers>
                   </Style>
                 </ToggleButton.Style>
@@ -169,7 +168,6 @@
                                 ContentStringFormat="{TemplateBinding ContentStringFormat}"
                                 ContentTemplate="{TemplateBinding ContentTemplate}"
                                 ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
-
             </Grid>
           </Border>
           <ControlTemplate.Triggers>
@@ -191,7 +189,7 @@
   <Style x:Key="MaterialDesignExpander" TargetType="{x:Type Expander}">
     <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Background}" />
     <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" />
+    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground), FallbackValue=Black}" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
 
     <Setter Property="Template">
@@ -286,7 +284,6 @@
                     </ObjectAnimationUsingKeyFrames>
                   </Storyboard>
                 </VisualState>
-
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <DockPanel Background="{TemplateBinding Background}">
@@ -306,11 +303,11 @@
                             Opacity="0.87"
                             TextElement.FontSize="{TemplateBinding wpf:ExpanderAssist.HeaderFontSize}" />
 
-              <Border Name="ContentSite">
+              <Border>
                 <Border.LayoutTransform>
                   <TransformGroup>
                     <ScaleTransform x:Name="ContentSiteScaleTransform" />
-                    <RotateTransform Angle="{Binding Path=ExpandDirection, RelativeSource={RelativeSource AncestorType=Expander}, Converter={x:Static convertersInternal:ExpanderRotateAngleConverter.Instance}}" />
+                    <RotateTransform Angle="{TemplateBinding ExpandDirection, Converter={x:Static convertersInternal:ExpanderRotateAngleConverter.Instance}}" />
                   </TransformGroup>
                 </Border.LayoutTransform>
 
@@ -319,7 +316,7 @@
                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                   <Grid.LayoutTransform>
-                    <RotateTransform Angle="{Binding Path=ExpandDirection, RelativeSource={RelativeSource AncestorType=Expander}, Converter={x:Static convertersInternal:ExpanderRotateAngleConverter.Instance}, ConverterParameter=-1}" />
+                    <RotateTransform Angle="{TemplateBinding ExpandDirection, Converter={x:Static convertersInternal:ExpanderRotateAngleConverter.Instance}, ConverterParameter=-1}" />
                   </Grid.LayoutTransform>
 
                   <ContentPresenter Name="PART_Content"
@@ -328,7 +325,6 @@
                                     ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
                                     Focusable="False"
                                     Visibility="Collapsed" />
-
                 </Grid>
               </Border>
             </DockPanel>

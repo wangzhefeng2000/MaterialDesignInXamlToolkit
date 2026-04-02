@@ -160,8 +160,8 @@
     {
         "name": "MaterialDesign.Brush.Chip.Background",
         "themeValues": {
-            "light": "#12000000",
-            "dark": "#FF2E3C43"
+            "light": "Black50",
+            "dark": "White50"
         },
         "alternateKeys": [],
         "obsoleteKeys": [
@@ -528,6 +528,24 @@
         "obsoleteKeys": [
             "MaterialDesignSnackbarMouseOver"
         ]
+    },
+    {
+        "name": "MaterialDesign.Brush.StatusBar.Background",
+        "themeValues": {
+            "light": "Neutral900",
+            "dark": "Neutral50"
+        },
+        "alternateKeys": [],
+        "obsoleteKeys": []
+    },
+    {
+        "name": "MaterialDesign.Brush.StatusBar.Foreground",
+        "themeValues": {
+            "light": "Black900",
+            "dark": "White900"
+        },
+        "alternateKeys": [],
+        "obsoleteKeys": []
     },
     {
         "name": "MaterialDesign.Brush.TabControl.Divider",

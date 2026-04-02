@@ -50,7 +50,7 @@ public class DialogHost : ContentControl
     /// </summary>
     public static readonly RoutedCommand CloseDialogCommand = new();
 
-    private static readonly HashSet<WeakReference<DialogHost>> LoadedInstances = new();
+    private static readonly HashSet<WeakReference<DialogHost>> LoadedInstances = [];
 
     private DialogOpenedEventHandler? _asyncShowOpenedEventHandler;
     private DialogClosingEventHandler? _asyncShowClosingEventHandler;
@@ -186,7 +186,7 @@ public class DialogHost : ContentControl
     ///  Close a modal dialog.
     /// </summary>
     /// <param name="dialogIdentifier"> of the instance where the dialog should be closed. Typically this will match an identifier set in XAML. </param>
-    /// <param name="parameter"> to provide to close handler</param>
+    /// <param name="parameter"> Value returned by DialogHost.ShowDialog(...) or passed to close handler if one is provided.</param>
     public static void Close(object? dialogIdentifier, object? parameter)
     {
         DialogHost dialogHost = GetInstance(dialogIdentifier);
@@ -221,7 +221,7 @@ public class DialogHost : ContentControl
         if (LoadedInstances.Count == 0)
             throw new InvalidOperationException("No loaded DialogHost instances.");
 
-        List<DialogHost> targets = new();
+        List<DialogHost> targets = [];
         foreach (var instance in LoadedInstances.ToList())
         {
             if (instance.TryGetTarget(out DialogHost? dialogInstance))
@@ -393,18 +393,16 @@ public class DialogHost : ContentControl
         dialogHost.DialogOpenedCallback?.Invoke(dialogHost, dialogOpenedEventArgs);
         dialogHost._asyncShowOpenedEventHandler?.Invoke(dialogHost, dialogOpenedEventArgs);
 
-        dialogHost.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
-        {
+        //https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/issues/187
+        //totally not happy about this, but on immediate validation we can get some weird looking stuff...give WPF a kick to refresh...
+        Task.Delay(300).ContinueWith(t => dialogHost.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => {
             CommandManager.InvalidateRequerySuggested();
+            //Delay focusing the popup until after the animation has some time, Issue #2912
             UIElement? child = dialogHost.FocusPopup();
 
-            if (child != null)
-            {
-                //https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/issues/187
-                //totally not happy about this, but on immediate validation we can get some weird looking stuff...give WPF a kick to refresh...
-                Task.Delay(300).ContinueWith(t => child.Dispatcher.BeginInvoke(new Action(() => child.InvalidateVisual())));
-            }
-        }));
+            child?.InvalidateVisual();
+
+        })));
     }
 
     /// <summary>

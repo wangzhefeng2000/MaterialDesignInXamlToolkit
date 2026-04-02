@@ -1,6 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:converters="clr-namespace:MaterialDesignThemes.Wpf.Converters"
+                    xmlns:internal="clr-namespace:MaterialDesignThemes.Wpf.Internal"
+                    xmlns:behaviorsInternal="clr-namespace:MaterialDesignThemes.Wpf.Behaviors.Internal"
+                    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
                     xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf">
 
   <ResourceDictionary.MergedDictionaries>
@@ -21,157 +24,231 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MaterialDesignTabControlBase" TargetType="{x:Type TabControl}">
-    <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" />
-    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-    <Setter Property="Padding" Value="0" />
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type TabControl}">
-          <DockPanel KeyboardNavigation.TabNavigation="Local">
-            <wpf:ColorZone x:Name="PART_HeaderZone"
+  <ControlTemplate x:Key="ScrollingTabControlTemplate" TargetType="{x:Type TabControl}">
+    <DockPanel KeyboardNavigation.TabNavigation="Local">
+      <wpf:ColorZone x:Name="PART_HeaderZone"
                            VerticalAlignment="Stretch"
                            Panel.ZIndex="1"
                            wpf:ElevationAssist.Elevation="{TemplateBinding wpf:ElevationAssist.Elevation}"
                            Background="{TemplateBinding wpf:ColorZoneAssist.Background}"
                            DockPanel.Dock="Top"
                            Focusable="False">
-              <ScrollViewer wpf:ScrollViewerAssist.BubbleVerticalScroll="True"
-                            wpf:ScrollViewerAssist.SupportHorizontalScroll="True"
-                            wpf:ScrollViewerAssist.IgnorePadding="{Binding Path=(wpf:ScrollViewerAssist.IgnorePadding), RelativeSource={RelativeSource TemplatedParent}}"
-                            wpf:ScrollViewerAssist.PaddingMode="{Binding Path=(wpf:ScrollViewerAssist.PaddingMode), RelativeSource={RelativeSource TemplatedParent}}"
-                            HorizontalScrollBarVisibility="Hidden"
-                            VerticalScrollBarVisibility="Hidden">
-                <StackPanel>
-                  <UniformGrid x:Name="CenteredHeaderPanel"
-                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                               Margin="{Binding Path=(wpf:TabAssist.HeaderPanelMargin), RelativeSource={RelativeSource TemplatedParent}}"
-                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                               wpf:TabAssist.BindableIsItemsHost="{Binding Visibility, RelativeSource={RelativeSource Self}}"
-                               Focusable="False"
-                               KeyboardNavigation.TabIndex="1"
-                               Rows="1" />
-                  <VirtualizingStackPanel x:Name="HeaderPanel"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          Margin="{Binding Path=(wpf:TabAssist.HeaderPanelMargin), RelativeSource={RelativeSource TemplatedParent}}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          wpf:TabAssist.BindableIsItemsHost="{Binding Visibility, RelativeSource={RelativeSource Self}}"
-                                          Focusable="False"
-                                          KeyboardNavigation.TabIndex="1"
-                                          Orientation="Horizontal" />
-                </StackPanel>
-              </ScrollViewer>
-            </wpf:ColorZone>
-            <Border x:Name="PART_BorderSelectedContent"
+        <ScrollViewer wpf:ScrollViewerAssist.BubbleVerticalScroll="True"
+                              wpf:ScrollViewerAssist.SupportHorizontalScroll="True"
+                              wpf:ScrollViewerAssist.IgnorePadding="{Binding Path=(wpf:ScrollViewerAssist.IgnorePadding), RelativeSource={RelativeSource TemplatedParent}}"
+                              wpf:ScrollViewerAssist.PaddingMode="{Binding Path=(wpf:ScrollViewerAssist.PaddingMode), RelativeSource={RelativeSource TemplatedParent}}"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Hidden">
+          <b:Interaction.Behaviors>
+            <behaviorsInternal:TabControlHeaderScrollBehavior TabControl="{Binding RelativeSource={RelativeSource TemplatedParent}}" ScrollableContent="{Binding ElementName=ScrollableContent}" />
+          </b:Interaction.Behaviors>
+          <internal:PaddedBringIntoViewStackPanel x:Name="ScrollableContent"
+                                                  ScrollDirection="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(behaviorsInternal:TabControlHeaderScrollBehavior.ScrollDirection)}"
+                                                  HeaderPadding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:TabAssist.HeaderPadding)}"
+                                                  UseHeaderPadding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:TabAssist.UseHeaderPadding)}">
+            <UniformGrid x:Name="CenteredHeaderPanel"
+                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                     Margin="{Binding Path=(wpf:TabAssist.HeaderPanelMargin), RelativeSource={RelativeSource TemplatedParent}}"
+                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                     wpf:TabAssist.BindableIsItemsHost="{Binding Visibility, RelativeSource={RelativeSource Self}}"
+                                     Focusable="False"
+                                     KeyboardNavigation.TabIndex="1"
+                                     Rows="1" />
+            <VirtualizingStackPanel x:Name="HeaderPanel"
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                Margin="{Binding Path=(wpf:TabAssist.HeaderPanelMargin), RelativeSource={RelativeSource TemplatedParent}}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                wpf:TabAssist.BindableIsItemsHost="{Binding Visibility, RelativeSource={RelativeSource Self}}"
+                                                Focusable="False"
+                                                KeyboardNavigation.TabIndex="1"
+                                                Orientation="Horizontal" />
+          </internal:PaddedBringIntoViewStackPanel>
+        </ScrollViewer>
+      </wpf:ColorZone>
+
+      <Border x:Name="PART_BorderSelectedContent"
                     Padding="{TemplateBinding Padding}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     Panel.ZIndex="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Panel.ZIndex)}"
                     Background="{x:Null}"
                     Focusable="False">
-              <ContentPresenter x:Name="PART_SelectedContentHost"
-                                Margin="{TemplateBinding Padding}"
-                                ContentSource="SelectedContent"
-                                ContentStringFormat="{TemplateBinding SelectedContentStringFormat}"
-                                ContentTemplate="{TemplateBinding SelectedContentTemplate}"
-                                ContentTemplateSelector="{TemplateBinding SelectedContentTemplateSelector}"
-                                Focusable="False"
-                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-            </Border>
-          </DockPanel>
+        <ContentPresenter x:Name="PART_SelectedContentHost"
+                                  Margin="{TemplateBinding Padding}"
+                                  ContentSource="SelectedContent"
+                                  ContentStringFormat="{TemplateBinding SelectedContentStringFormat}"
+                                  ContentTemplate="{TemplateBinding SelectedContentTemplate}"
+                                  ContentTemplateSelector="{TemplateBinding SelectedContentTemplateSelector}"
+                                  Focusable="False"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+      </Border>
+    </DockPanel>
 
-          <ControlTemplate.Triggers>
-            <Trigger Property="HorizontalContentAlignment" Value="Stretch">
-              <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
-              <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
-            </Trigger>
+    <ControlTemplate.Triggers>
+      <Trigger Property="HorizontalContentAlignment" Value="Stretch">
+        <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
+        <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
+      </Trigger>
 
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="HorizontalContentAlignment" Value="Center" />
-                <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
-              </MultiTrigger.Conditions>
-              <MultiTrigger.Setters>
-                <Setter TargetName="HeaderPanel" Property="Visibility" Value="Visible" />
-                <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Collapsed" />
-              </MultiTrigger.Setters>
-            </MultiTrigger>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="HorizontalContentAlignment" Value="Center" />
-                <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="True" />
-              </MultiTrigger.Conditions>
-              <MultiTrigger.Setters>
-                <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
-                <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
-              </MultiTrigger.Setters>
-            </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="HorizontalContentAlignment" Value="Center" />
+          <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
+        </MultiTrigger.Conditions>
+        <MultiTrigger.Setters>
+          <Setter TargetName="HeaderPanel" Property="Visibility" Value="Visible" />
+          <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Collapsed" />
+        </MultiTrigger.Setters>
+      </MultiTrigger>
 
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="HorizontalContentAlignment" Value="Left" />
-                <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
-              </MultiTrigger.Conditions>
-              <MultiTrigger.Setters>
-                <Setter TargetName="HeaderPanel" Property="Visibility" Value="Visible" />
-                <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Collapsed" />
-              </MultiTrigger.Setters>
-            </MultiTrigger>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="HorizontalContentAlignment" Value="Left" />
-                <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="True" />
-              </MultiTrigger.Conditions>
-              <MultiTrigger.Setters>
-                <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
-                <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
-              </MultiTrigger.Setters>
-            </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="HorizontalContentAlignment" Value="Center" />
+          <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="True" />
+        </MultiTrigger.Conditions>
+        <MultiTrigger.Setters>
+          <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
+          <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
+        </MultiTrigger.Setters>
+      </MultiTrigger>
 
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="HorizontalContentAlignment" Value="Right" />
-                <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
-              </MultiTrigger.Conditions>
-              <MultiTrigger.Setters>
-                <Setter TargetName="HeaderPanel" Property="Visibility" Value="Visible" />
-                <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Collapsed" />
-              </MultiTrigger.Setters>
-            </MultiTrigger>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="HorizontalContentAlignment" Value="Right" />
-                <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="True" />
-              </MultiTrigger.Conditions>
-              <MultiTrigger.Setters>
-                <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
-                <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
-              </MultiTrigger.Setters>
-            </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="HorizontalContentAlignment" Value="Left" />
+          <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
+        </MultiTrigger.Conditions>
+        <MultiTrigger.Setters>
+          <Setter TargetName="HeaderPanel" Property="Visibility" Value="Visible" />
+          <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Collapsed" />
+        </MultiTrigger.Setters>
+      </MultiTrigger>
 
-            <Trigger Property="TabStripPlacement" Value="Bottom">
-              <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Bottom" />
-            </Trigger>
-            <Trigger Property="TabStripPlacement" Value="Left">
-              <Setter TargetName="CenteredHeaderPanel" Property="Columns" Value="1" />
-              <Setter TargetName="CenteredHeaderPanel" Property="Rows" Value="0" />
-              <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Left" />
-            </Trigger>
-            <Trigger Property="TabStripPlacement" Value="Right">
-              <Setter TargetName="CenteredHeaderPanel" Property="Columns" Value="1" />
-              <Setter TargetName="CenteredHeaderPanel" Property="Rows" Value="0" />
-              <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Right" />
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="HorizontalContentAlignment" Value="Left" />
+          <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="True" />
+        </MultiTrigger.Conditions>
+        <MultiTrigger.Setters>
+          <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
+          <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
+        </MultiTrigger.Setters>
+      </MultiTrigger>
+
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="HorizontalContentAlignment" Value="Right" />
+          <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
+        </MultiTrigger.Conditions>
+        <MultiTrigger.Setters>
+          <Setter TargetName="HeaderPanel" Property="Visibility" Value="Visible" />
+          <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Collapsed" />
+        </MultiTrigger.Setters>
+      </MultiTrigger>
+
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="HorizontalContentAlignment" Value="Right" />
+          <Condition Property="wpf:TabAssist.HasUniformTabWidth" Value="True" />
+        </MultiTrigger.Conditions>
+        <MultiTrigger.Setters>
+          <Setter TargetName="HeaderPanel" Property="Visibility" Value="Collapsed" />
+          <Setter TargetName="CenteredHeaderPanel" Property="Visibility" Value="Visible" />
+        </MultiTrigger.Setters>
+      </MultiTrigger>
+
+      <Trigger Property="TabStripPlacement" Value="Bottom">
+        <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Bottom" />
+      </Trigger>
+      <Trigger Property="TabStripPlacement" Value="Left">
+        <Setter TargetName="CenteredHeaderPanel" Property="Columns" Value="1" />
+        <Setter TargetName="CenteredHeaderPanel" Property="Rows" Value="0" />
+        <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Left" />
+      </Trigger>
+      <Trigger Property="TabStripPlacement" Value="Right">
+        <Setter TargetName="CenteredHeaderPanel" Property="Columns" Value="1" />
+        <Setter TargetName="CenteredHeaderPanel" Property="Rows" Value="0" />
+        <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Right" />
+      </Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WrappingTabControlTemplate" TargetType="{x:Type TabControl}">
+    <DockPanel KeyboardNavigation.TabNavigation="Local">
+      <wpf:ColorZone x:Name="PART_HeaderZone"
+                           VerticalAlignment="Stretch"
+                           Panel.ZIndex="1"
+                           wpf:ElevationAssist.Elevation="{TemplateBinding wpf:ElevationAssist.Elevation}"
+                           Background="{TemplateBinding wpf:ColorZoneAssist.Background}"
+                           DockPanel.Dock="Top"
+                           Focusable="False">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+          <WrapPanel x:Name="HeaderWrapPanel"
+                               Margin="{Binding Path=(wpf:TabAssist.HeaderPanelMargin), RelativeSource={RelativeSource TemplatedParent}}"
+                               Background="Transparent"
+                               IsItemsHost="True"
+                               KeyboardNavigation.TabIndex="1" />
+        </ScrollViewer>
+      </wpf:ColorZone>
+
+      <Border x:Name="PART_BorderSelectedContent"
+                    Padding="{TemplateBinding Padding}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Panel.ZIndex="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Panel.ZIndex)}"
+                    Background="{x:Null}"
+                    Focusable="False">
+        <ContentPresenter x:Name="PART_SelectedContentHost"
+                                  Margin="{TemplateBinding Padding}"
+                                  ContentSource="SelectedContent"
+                                  ContentStringFormat="{TemplateBinding SelectedContentStringFormat}"
+                                  ContentTemplate="{TemplateBinding SelectedContentTemplate}"
+                                  ContentTemplateSelector="{TemplateBinding SelectedContentTemplateSelector}"
+                                  Focusable="False"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+      </Border>
+    </DockPanel>
+
+    <ControlTemplate.Triggers>
+      <Trigger Property="TabStripPlacement" Value="Bottom">
+        <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Bottom" />
+      </Trigger>
+      <Trigger Property="TabStripPlacement" Value="Left">
+        <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Left" />
+      </Trigger>
+      <Trigger Property="TabStripPlacement" Value="Right">
+        <Setter TargetName="PART_HeaderZone" Property="DockPanel.Dock" Value="Right" />
+      </Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+
+  <Style x:Key="MaterialDesignTabControlBase" TargetType="{x:Type TabControl}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground"
+                Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}},
+                                Path=(TextElement.Foreground),
+                                FallbackValue=Black}" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Template" Value="{StaticResource ScrollingTabControlTemplate}" />
     <Setter Property="VerticalContentAlignment" Value="Stretch" />
     <Setter Property="wpf:ColorZoneAssist.Mode" Value="PrimaryMid" />
     <Setter Property="wpf:ElevationAssist.Elevation" Value="Dp4" />
     <Setter Property="wpf:RippleAssist.Feedback" Value="{DynamicResource MaterialDesign.Brush.Button.Ripple}" />
     <Setter Property="wpf:TabAssist.HasUniformTabWidth" Value="False" />
+    <!-- MD spec says 52 DP, but that seems a little excessive in practice -->
+    <Setter Property="wpf:TabAssist.HeaderPadding" Value="40" />
+    <Setter Property="wpf:TabAssist.UseHeaderPadding" Value="True" />
+    <Setter Property="wpf:TabAssist.ScrollDuration" Value="0:0:0.250" />
+
+    <Style.Triggers>
+      <Trigger Property="wpf:TabAssist.HeaderBehavior" Value="Wrapping">
+        <Setter Property="Template" Value="{StaticResource WrappingTabControlTemplate}" />
+      </Trigger>
+      <Trigger Property="wpf:TabAssist.HeaderBehavior" Value="Scrolling">
+        <Setter Property="Template" Value="{StaticResource ScrollingTabControlTemplate}" />
+      </Trigger>
+    </Style.Triggers>
   </Style>
 
   <Style x:Key="MaterialDesignTabControl"
@@ -240,7 +317,7 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
     <!-- Foreground is for the content, not the header -->
-    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(TextElement.Foreground)}" />
+    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(TextElement.Foreground), FallbackValue=Black}" />
     <Setter Property="Height" Value="48" />
     <Setter Property="MinWidth" Value="90" />
     <Setter Property="Padding" Value="16,12" />
@@ -291,7 +368,7 @@
                                Duration="0" />
             </Storyboard>
           </ControlTemplate.Resources>
-          <Grid x:Name="Root">
+          <Grid x:Name="Root" Cursor="{Binding Path=(wpf:TabAssist.TabHeaderCursor), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}">
             <!-- This is the Header label ColorZone. -->
             <wpf:ColorZone x:Name="ColorZoneHeader"
                            HorizontalAlignment="Stretch"
@@ -333,6 +410,9 @@
             </Border>
           </Grid>
           <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True" SourceName="ColorZoneHeader">
+              <Setter TargetName="Root" Property="Background" Value="{Binding Foreground, RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={x:Static converters:BrushOpacityConverter.Instance}, ConverterParameter=0.16}" />
+            </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Setter Property="Opacity" Value="0.38" />
             </Trigger>
@@ -341,13 +421,13 @@
               <Setter TargetName="contentPresenter" Property="Opacity" Value="1" />
               <Setter TargetName="contentPresenter" Property="wpf:RippleAssist.IsDisabled" Value="True" />
             </Trigger>
-            <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Bottom">
+            <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Bottom">
               <Setter TargetName="SelectionHighlightBorder" Property="BorderThickness" Value="0,2,0,0" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Left">
+            <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Left">
               <Setter TargetName="SelectionHighlightBorder" Property="BorderThickness" Value="0,0,2,0" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Right">
+            <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Right">
               <Setter TargetName="SelectionHighlightBorder" Property="BorderThickness" Value="2,0,0,0" />
             </DataTrigger>
 
@@ -355,7 +435,7 @@
             <MultiDataTrigger>
               <MultiDataTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
-                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top" />
+                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Top" />
               </MultiDataTrigger.Conditions>
               <MultiDataTrigger.EnterActions>
                 <BeginStoryboard Storyboard="{StaticResource SelectHorizontalTabItem}" />
@@ -364,7 +444,7 @@
             <MultiDataTrigger>
               <MultiDataTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
-                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Bottom" />
+                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Bottom" />
               </MultiDataTrigger.Conditions>
               <MultiDataTrigger.EnterActions>
                 <BeginStoryboard Storyboard="{StaticResource SelectHorizontalTabItem}" />
@@ -373,7 +453,7 @@
             <MultiDataTrigger>
               <MultiDataTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
-                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Left" />
+                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Left" />
               </MultiDataTrigger.Conditions>
               <MultiDataTrigger.EnterActions>
                 <BeginStoryboard Storyboard="{StaticResource SelectVerticalTabItem}" />
@@ -382,7 +462,7 @@
             <MultiDataTrigger>
               <MultiDataTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="True" />
-                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Right" />
+                <Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=Top}" Value="Right" />
               </MultiDataTrigger.Conditions>
               <MultiDataTrigger.EnterActions>
                 <BeginStoryboard Storyboard="{StaticResource SelectVerticalTabItem}" />
@@ -464,11 +544,11 @@
       </Setter.Value>
     </Setter>
     <Setter Property="wpf:ColorZoneAssist.Background" Value="Transparent" />
-    <Setter Property="wpf:ColorZoneAssist.Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(wpf:ColorZoneAssist.Foreground)}" />
-    <Setter Property="wpf:ColorZoneAssist.Mode" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(wpf:ColorZoneAssist.Mode)}" />
+    <Setter Property="wpf:ColorZoneAssist.Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(wpf:ColorZoneAssist.Foreground), FallbackValue=Black}" />
+    <Setter Property="wpf:ColorZoneAssist.Mode" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(wpf:ColorZoneAssist.Mode), FallbackValue=Standard}" />
     <Setter Property="wpf:DialogHost.RestoreFocusElement" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=TabControl}}" />
     <Setter Property="wpf:RippleAssist.Feedback" Value="{DynamicResource MaterialDesign.Brush.Button.Ripple}" />
-    <Setter Property="wpf:TabAssist.HasFilledTab" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(wpf:TabAssist.HasFilledTab)}" />
+    <Setter Property="wpf:TabAssist.HasFilledTab" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, Path=(wpf:TabAssist.HasFilledTab), FallbackValue=False}" />
   </Style>
 
   <!-- NAVIGATION RAIL -->
@@ -486,7 +566,7 @@
             <Grid>
               <Border x:Name="MouseOverBorder"
                       Background="{TemplateBinding Background}"
-                      CornerRadius="{Binding Path=(wpf:NavigationRailAssist.SelectionCornerRadius), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"
+                      CornerRadius="{Binding Path=(wpf:NavigationRailAssist.SelectionCornerRadius), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=0}"
                       Opacity=".08"
                       Visibility="Hidden" />
               <wpf:ColorZone x:Name="colorZone"
@@ -529,7 +609,7 @@
             <Border x:Name="SelectionHighlightBorder" Visibility="Hidden">
               <Border x:Name="PART_BackgroundSelection"
                       Background="{TemplateBinding Background}"
-                      CornerRadius="{Binding Path=(wpf:NavigationRailAssist.SelectionCornerRadius), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"
+                      CornerRadius="{Binding Path=(wpf:NavigationRailAssist.SelectionCornerRadius), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=0}"
                       IsHitTestVisible="False"
                       Opacity="0.12" />
             </Border>
@@ -557,7 +637,7 @@
             <MultiDataTrigger>
               <MultiDataTrigger.Conditions>
                 <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True" />
-                <Condition Binding="{Binding Path=(wpf:NavigationRailAssist.ShowSelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="True" />
+                <Condition Binding="{Binding Path=(wpf:NavigationRailAssist.ShowSelectionBackground), RelativeSource={RelativeSource AncestorType={x:Type TabControl}}, FallbackValue=False}" Value="True" />
               </MultiDataTrigger.Conditions>
               <Setter TargetName="SelectionHighlightBorder" Property="Visibility" Value="Visible" />
             </MultiDataTrigger>
@@ -594,7 +674,6 @@
               <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ColorZoneAssist.Foreground)}" />
               <Setter Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ColorZoneAssist.Foreground)}" />
             </Trigger>
-
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
@@ -669,7 +748,6 @@
                              Visibility="Collapsed" />
                 </Grid>
               </wpf:ColorZone>
-
             </Grid>
             <!-- selected content -->
             <wpf:ColorZone x:Name="PART_HeaderCardSelectedContent"

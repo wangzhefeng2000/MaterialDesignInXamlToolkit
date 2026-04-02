@@ -345,6 +345,14 @@ public partial class MainWindowViewModel : ObservableObject
             ]);
 
         yield return new DemoItem(
+            "StatusBar",
+            typeof(StatusBars),
+            [
+                DocumentationLink.DemoPageLink<StatusBars>(),
+                DocumentationLink.StyleLink("StatusBar")
+            ]);
+
+        yield return new DemoItem(
             "Progress Indicator",
             typeof(Progress),
             [
@@ -450,6 +458,14 @@ public partial class MainWindowViewModel : ObservableObject
             DocumentationLink.ApiLink<DecimalUpDown>(),
             DocumentationLink.ApiLink<UpDownBase>()
         ]);
+
+        yield return new DemoItem(
+            "ToolTips",
+            typeof(ToolTips),
+            [
+                DocumentationLink.DemoPageLink<PopupBox>(),
+                DocumentationLink.DemoPageLink<ToolTipsViewModel>("Demo View Model", "Domain"),
+            ]);
     }
 
     private bool DemoItemsFilter(object obj)

@@ -5,7 +5,7 @@
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ValidationErrorTemplate.xaml" />
   </ResourceDictionary.MergedDictionaries>
-  
+
   <Style x:Key="FocusVisual">
     <Setter Property="Control.Template">
       <Setter.Value>
@@ -136,20 +136,10 @@
                                 ContentTemplate="{TemplateBinding ContentTemplate}"
                                 FlowDirection="LeftToRight" />
               <Grid.Clip>
-                <EllipseGeometry RadiusX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Width, Converter={x:Static converters:MathConverter.DivideInstance}, ConverterParameter=2.0}" RadiusY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Height, Converter={x:Static converters:MathConverter.DivideInstance}, ConverterParameter=2.0}">
-                  <EllipseGeometry.Center>
-                    <MultiBinding Converter="{x:Static converters:PointValueConverter.Instance}">
-                      <Binding Converter="{x:Static converters:MathConverter.DivideInstance}"
-                               ConverterParameter="2.0"
-                               Path="Width"
-                               RelativeSource="{RelativeSource TemplatedParent}" />
-                      <Binding Converter="{x:Static converters:MathConverter.DivideInstance}"
-                               ConverterParameter="2.0"
-                               Path="Height"
-                               RelativeSource="{RelativeSource TemplatedParent}" />
-                    </MultiBinding>
-                  </EllipseGeometry.Center>
-                </EllipseGeometry>
+                <MultiBinding Converter="{x:Static converters:EllipseClipConverter.Instance}">
+                  <Binding Path="ActualWidth" RelativeSource="{RelativeSource TemplatedParent}" />
+                  <Binding Path="ActualHeight" RelativeSource="{RelativeSource TemplatedParent}" />
+                </MultiBinding>
               </Grid.Clip>
               <Grid.RenderTransform>
                 <ScaleTransform x:Name="OffScaleTransform" ScaleX="1" ScaleY="1" />
@@ -164,20 +154,10 @@
                                 ContentTemplate="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:ToggleButtonAssist.OnContentTemplate)}"
                                 FlowDirection="LeftToRight" />
               <Grid.Clip>
-                <EllipseGeometry RadiusX="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Width, Converter={x:Static converters:MathConverter.DivideInstance}, ConverterParameter=2.0}" RadiusY="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Height, Converter={x:Static converters:MathConverter.DivideInstance}, ConverterParameter=2.0}">
-                  <EllipseGeometry.Center>
-                    <MultiBinding Converter="{x:Static converters:PointValueConverter.Instance}">
-                      <Binding Converter="{x:Static converters:MathConverter.DivideInstance}"
-                               ConverterParameter="2.0"
-                               Path="Width"
-                               RelativeSource="{RelativeSource TemplatedParent}" />
-                      <Binding Converter="{x:Static converters:MathConverter.DivideInstance}"
-                               ConverterParameter="2.0"
-                               Path="Height"
-                               RelativeSource="{RelativeSource TemplatedParent}" />
-                    </MultiBinding>
-                  </EllipseGeometry.Center>
-                </EllipseGeometry>
+                <MultiBinding Converter="{x:Static converters:EllipseClipConverter.Instance}">
+                  <Binding Path="ActualWidth" RelativeSource="{RelativeSource TemplatedParent}" />
+                  <Binding Path="ActualHeight" RelativeSource="{RelativeSource TemplatedParent}" />
+                </MultiBinding>
               </Grid.Clip>
               <Grid.RenderTransform>
                 <ScaleTransform x:Name="OnScaleTransform" ScaleX="0" ScaleY="1" />
@@ -326,7 +306,7 @@
             </Trigger>
             <!-- TODO
 						<Trigger Property="IsFocused" Value="True">
-							<Setter Property="BorderBrush" TargetName="normal" Value="{Binding (Custom:ControlsHelper.FocusBorderBrush), RelativeSource={RelativeSource TemplatedParent}}"/>
+							<Setter Property="BorderBrush" TargetName="normal" Value="{Binding (Custom:ControlsHelper.FocusBorderBrush), RelativeSource={RelativeSource TemplatedParent}}" />
 						</Trigger>
 						-->
           </ControlTemplate.Triggers>
@@ -347,6 +327,7 @@
   <Style x:Key="MaterialDesignSwitchToggleButton" TargetType="{x:Type ToggleButton}">
     <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
     <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
     <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.Foreground}" />
     <Setter Property="Padding" Value="0,1,0,0" />
@@ -458,6 +439,20 @@
                     <ScaleTransform ScaleX="1" ScaleY="1" />
                   </Ellipse.RenderTransform>
                 </Ellipse>
+                <Ellipse x:Name="halo"
+                         Width="22"
+                         Height="22"
+                         Margin="0"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Fill="{DynamicResource MaterialDesign.Brush.Primary.Light}"
+                         IsHitTestVisible="False"
+                         Opacity="0"
+                         RenderTransformOrigin="0.5,0.5">
+                  <Ellipse.RenderTransform>
+                    <ScaleTransform ScaleX="2.5" ScaleY="2.5" />
+                  </Ellipse.RenderTransform>
+                </Ellipse>
                 <AdornerDecorator CacheMode="{Binding RelativeSource={RelativeSource Self}, Path=(wpf:ShadowAssist.CacheMode)}">
                   <Ellipse x:Name="Thumb"
                            Width="25"
@@ -519,6 +514,9 @@
                 </Setter.Value>
               </Setter>
             </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="halo" Property="Opacity" Value="{x:Static wpf:Constants.InteractionHoverOpacity}" />
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
@@ -551,7 +549,7 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
-    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" />
+    <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground), FallbackValue=Black}" />
     <Setter Property="Height" Value="37" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="Padding" Value="1" />
@@ -825,5 +823,4 @@
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Width" Value="37" />
   </Style>
-
 </ResourceDictionary>

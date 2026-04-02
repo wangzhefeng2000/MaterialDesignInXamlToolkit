@@ -1,12 +1,15 @@
+using System.Collections;
 using System.Collections.Specialized;
 using System.Windows.Automation.Peers;
+using System.Windows.Data;
+
 using MaterialDesignThemes.Wpf.Automation.Peers;
+using MaterialDesignThemes.Wpf.Converters;
 using MaterialDesignThemes.Wpf.Internal;
 
 namespace MaterialDesignThemes.Wpf;
 
 //TODO: Implement bindable property for getting selected items
-//TODO: Implement GridView support for having columns
 public class TreeListView : ListView
 {
     public double LevelIndentSize
@@ -51,24 +54,24 @@ public class TreeListView : ListView
     protected override bool IsItemItsOwnContainerOverride(object? item)
         => item is TreeListViewItem;
 
-    protected override void PrepareContainerForItemOverride(DependencyObject element, object? item)
-    {
-        base.PrepareContainerForItemOverride(element, item);
+    //protected override void PrepareContainerForItemOverride(DependencyObject element, object? item)
+    //{
+    //    base.PrepareContainerForItemOverride(element, item);
 
-        if (element is TreeListViewItem treeListViewItem)
-        {
-            int level = 0;
-            bool isExpanded = false;
-            int index = ItemContainerGenerator.IndexFromContainer(treeListViewItem);
-            if (index >= 0 && InternalItemsSource is { } itemsSource)
-            {
-                level = itemsSource.GetLevel(index);
-                isExpanded = itemsSource.GetIsExpanded(index);
-            }
+    //    if (element is TreeListViewItem treeListViewItem)
+    //    {
+    //        int level = 0;
+    //        bool isExpanded = false;
+    //        int index = ItemContainerGenerator.IndexFromContainer(treeListViewItem);
+    //        if (index >= 0 && InternalItemsSource is { } itemsSource)
+    //        {
+    //            level = itemsSource.GetLevel(index);
+    //            isExpanded = itemsSource.GetIsExpanded(index);
+    //        }
 
-            treeListViewItem.PrepareTreeListViewItem(item, this, level, isExpanded);
-        }
-    }
+    //        treeListViewItem.PrepareTreeListViewItem(item, this, level, isExpanded);
+    //    }
+    //}
 
     protected override void ClearContainerForItemOverride(DependencyObject element, object item)
     {
@@ -86,11 +89,19 @@ public class TreeListView : ListView
             int index = ItemContainerGenerator.IndexFromContainer(item);
             //Issue 3572
             if (index < 0) return;
-            var children = item.GetChildren().ToList();
-            bool isExpanded = item.IsExpanded;
+            var isExpanded = item.IsExpanded;
+            var internalIsExpanded = itemsSource.GetIsExpanded(index);
+
+            if (internalIsExpanded == isExpanded)
+            {
+                return;
+            }
+
             itemsSource.SetIsExpanded(index, isExpanded);
+
             if (isExpanded)
             {
+                var children = item.GetChildren().ToList();
                 int parentLevel = itemsSource.GetLevel(index);
                 for (int i = 0; i < children.Count; i++)
                 {
@@ -258,5 +269,67 @@ public class TreeListView : ListView
                 }
             }
         }
+    }
+
+    protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.Property == ViewProperty && View is GridView gridView)
+        {
+            AddToggleButtonToFirstColumn(gridView);
+        }
+    }
+
+    private void AddToggleButtonToFirstColumn(GridView gridView)
+    {
+        if (gridView.Columns.Count > 0)
+        {
+            var firstColumn = gridView.Columns[0];
+            firstColumn.CellTemplate = CreateToggleButtonTemplate(firstColumn.CellTemplate);
+        }
+    }
+
+    private DataTemplate CreateToggleButtonTemplate(DataTemplate originalTemplate)
+    {
+        var template = new DataTemplate();
+
+        var stackPanelFactory = new FrameworkElementFactory(typeof(StackPanel));
+        stackPanelFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+
+        var marginMultiBinding = new MultiBinding
+        {
+            Converter = TreeListViewIndentConverter.Instance,
+        };
+        marginMultiBinding.Bindings.Add(new Binding(LevelIndentSizeProperty.Name)
+        {
+            RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(TreeListView), 1)
+        });
+        marginMultiBinding.Bindings.Add(new Binding(TreeListViewItem.LevelProperty.Name)
+        {
+            RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(TreeListViewItem), 1)
+        });
+        stackPanelFactory.SetBinding(MarginProperty, marginMultiBinding);
+
+        var toggleButtonFactory = new FrameworkElementFactory(typeof(ToggleButton));
+        toggleButtonFactory.SetValue(StyleProperty, FindResource("MaterialDesignTreeListViewToggleButtonStyle"));
+
+        toggleButtonFactory.SetBinding(ToggleButton.IsCheckedProperty, new Binding(TreeListViewItem.IsExpandedProperty.Name)
+        {
+            RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(TreeListViewItem), 1)
+        });
+
+        stackPanelFactory.AppendChild(toggleButtonFactory);
+
+        if (originalTemplate != null)
+        {
+            var originalContentFactory = new FrameworkElementFactory(typeof(ContentPresenter));
+            originalContentFactory.SetValue(ContentPresenter.MarginProperty, new Thickness(8, 0, 0, 0));
+            originalContentFactory.SetValue(ContentPresenter.ContentTemplateProperty, originalTemplate);
+            stackPanelFactory.AppendChild(originalContentFactory);
+        }
+
+        template.VisualTree = stackPanelFactory;
+        return template;
     }
 }

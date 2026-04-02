@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace MaterialDesignThemes.Wpf;
@@ -8,6 +9,15 @@ namespace MaterialDesignThemes.Wpf;
 [TemplatePart(Name = AutoSuggestBoxListPart, Type = typeof(ListBox))]
 public class AutoSuggestBox : TextBox
 {
+    public static bool? GetIsInteractiveElement(DependencyObject obj)
+        => (bool?)obj.GetValue(IsInteractiveElementProperty);
+
+    public static void SetIsInteractiveElement(DependencyObject obj, bool? value)
+        => obj.SetValue(IsInteractiveElementProperty, value);
+
+    public static readonly DependencyProperty IsInteractiveElementProperty =
+        DependencyProperty.RegisterAttached("IsInteractiveElement", typeof(bool?), typeof(AutoSuggestBox), new PropertyMetadata(null));
+
     private const string AutoSuggestBoxListPart = "PART_AutoSuggestBoxList";
 
     protected ListBox? _autoSuggestBoxList;
@@ -96,7 +106,11 @@ public class AutoSuggestBox : TextBox
         set => SetValue(SelectedItemProperty, value);
     }
     public static readonly DependencyProperty SelectedItemProperty =
-        DependencyProperty.Register(nameof(SelectedItem), typeof(object), typeof(AutoSuggestBox), new PropertyMetadata(default(object)));
+        DependencyProperty.Register(
+            nameof(SelectedItem),
+            typeof(object),
+            typeof(AutoSuggestBox),
+            new FrameworkPropertyMetadata(default(object), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
 
     public object SelectedValue
@@ -145,34 +159,47 @@ public class AutoSuggestBox : TextBox
 
     protected override void OnPreviewKeyDown(KeyEventArgs e)
     {
-        base.OnPreviewKeyDown(e);
         if (_autoSuggestBoxList is null) return;
         switch (e.Key)
         {
             case Key.Down:
                 IncrementSelection();
+                e.Handled = true;
                 break;
             case Key.Up:
                 DecrementSelection();
+                e.Handled = true;
                 break;
             case Key.Enter:
                 CommitValueSelection();
+                e.Handled = true;
                 break;
             case Key.Escape:
                 CloseAutoSuggestionPopUp();
+                e.Handled = true;
                 break;
             case Key.Tab:
-                CommitValueSelection();
+                bool wasItemSelected = CommitValueSelection();
+                // Only mark the event as handled if the SuggestionList is open and therefore the Selection was successful
+                if (wasItemSelected)
+                {
+                    e.Handled = true;
+                }
                 break;
             default:
                 return;
         }
-        e.Handled = true;
+        base.OnPreviewKeyDown(e);
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         base.OnLostFocus(e);
+        if (_autoSuggestBoxList is { } list &&
+            (list.IsKeyboardFocused || list.IsKeyboardFocusWithin))
+        {
+            return;
+        }
         CloseAutoSuggestionPopUp();
     }
     protected override void OnTextChanged(TextChangedEventArgs e)
@@ -192,28 +219,36 @@ public class AutoSuggestBox : TextBox
 
     private void AutoSuggestionListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (_autoSuggestBoxList is not null && e.OriginalSource is FrameworkElement element)
-        {
-            var selectedItem = element.DataContext;
-            if (!_autoSuggestBoxList.Items.Contains(selectedItem))
-                return;
-            if (!_autoSuggestBoxList.SelectedItem.Equals(selectedItem))
-            {
-                _autoSuggestBoxList.SelectionChanged += OnSelectionChanged;
-                _autoSuggestBoxList.SelectedItem = selectedItem;
-            }
-            else
-            {
-                _autoSuggestBoxList.SelectedItem = selectedItem;
-                CommitValueSelection();
-            }
+        if (_autoSuggestBoxList is null || e.OriginalSource is not FrameworkElement element)
+            return;
 
-            void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        // If the user clicked on an interactive element, let it handle the event.
+        if (IsInteractiveElement(element))
+        {
+            return;
+        }
+
+        var selectedItem = element.DataContext;
+        if (!_autoSuggestBoxList.Items.Contains(selectedItem))
+            return;
+
+        e.Handled = true;
+
+        if (!Equals(_autoSuggestBoxList.SelectedItem, selectedItem))
+        {
+            void OnSelectionChanged(object s, SelectionChangedEventArgs args)
             {
                 _autoSuggestBoxList.SelectionChanged -= OnSelectionChanged;
                 CommitValueSelection();
             }
-            e.Handled = true;
+
+            _autoSuggestBoxList.SelectionChanged += OnSelectionChanged;
+            _autoSuggestBoxList.SelectedItem = selectedItem;
+        }
+        else
+        {
+            _autoSuggestBoxList.SelectedItem = selectedItem;
+            CommitValueSelection();
         }
     }
 
@@ -222,29 +257,57 @@ public class AutoSuggestBox : TextBox
     #endregion
 
     #region Methods
+    private bool IsInteractiveElement(DependencyObject? element)
+    {
+        return element.GetVisualAncestry()
+            .Where(x => x != this)
+            .Select(IsInteractive)
+            .Where(x => x is not null)
+            .FirstOrDefault() ?? false;
+
+        static bool? IsInteractive(DependencyObject element)
+        {
+            if (GetIsInteractiveElement(element) is bool isInteractiveElement)
+            {
+                return isInteractiveElement;
+            }
+            if (element is ButtonBase or TextBoxBase or ComboBox or Hyperlink)
+            {
+                return true;
+            }
+            return null;
+        }
+    }
 
     private void CloseAutoSuggestionPopUp()
     {
         IsSuggestionOpen = false;
     }
 
-    private void CommitValueSelection()
+    private bool CommitValueSelection()
         => CommitValueSelection(_autoSuggestBoxList?.SelectedValue);
 
-    private void CommitValueSelection(object? selectedValue)
+    private bool CommitValueSelection(object? selectedValue)
     {
+        if (IsSuggestionOpen == false)
+        {
+            return false;
+        }
+
         string oldValue = Text;
         Text = selectedValue?.ToString();
         if (Text != null)
         {
             CaretIndex = Text.Length;
         }
+        SetCurrentValue(SelectedItemProperty, selectedValue);
         CloseAutoSuggestionPopUp();
         var args = new RoutedPropertyChangedEventArgs<object?>(oldValue, Text)
         {
             RoutedEvent = SuggestionChosenEvent
         };
         RaiseEvent(args);
+        return true;
     }
 
     private void DecrementSelection()
@@ -252,7 +315,9 @@ public class AutoSuggestBox : TextBox
         if (_autoSuggestBoxList is null || Suggestions is null)
             return;
         ICollectionView collectionView = CollectionViewSource.GetDefaultView(Suggestions);
-        if (collectionView.IsCurrentBeforeFirst)
+
+        // If we're at the first item, wrap around to the last.
+        if (collectionView.CurrentPosition == 0)
             collectionView.MoveCurrentToLast();
         else
             collectionView.MoveCurrentToPrevious();
@@ -264,7 +329,10 @@ public class AutoSuggestBox : TextBox
         if (_autoSuggestBoxList is null || Suggestions is null)
             return;
         ICollectionView collectionView = CollectionViewSource.GetDefaultView(Suggestions);
-        if (collectionView.IsCurrentAfterLast)
+        int itemCount = collectionView.Cast<object>().Count();
+
+        // If we're at the last item, wrap around to the first.
+        if (collectionView.CurrentPosition == itemCount - 1)
             collectionView.MoveCurrentToFirst();
         else
             collectionView.MoveCurrentToNext();

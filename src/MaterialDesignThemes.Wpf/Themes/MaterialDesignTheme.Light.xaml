@@ -18,7 +18,7 @@
   <colors:StaticResource x:Key="MaterialDesign.Brush.Card.Border" ResourceKey="Neutral700" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.CheckBox.Disabled" ResourceKey="Neutral700" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.CheckBox.UncheckedBorder" ResourceKey="Black100" />
-  <SolidColorBrush x:Key="MaterialDesign.Brush.Chip.Background" Color="#12000000" po:Freeze="True" />
+  <colors:StaticResource x:Key="MaterialDesign.Brush.Chip.Background" ResourceKey="Black50" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.Chip.OutlineBorder" ResourceKey="Black100" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.ColorZone.DarkBackground" ResourceKey="Neutral100" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.ColorZone.DarkForeground" ResourceKey="Neutral900" />
@@ -72,6 +72,8 @@
   <colors:StaticResource x:Key="MaterialDesign.Brush.Separator.Background" ResourceKey="Neutral800" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.SnackBar.Background" ResourceKey="Neutral100" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.SnackBar.MouseOver" ResourceKey="Neutral200" />
+  <colors:StaticResource x:Key="MaterialDesign.Brush.StatusBar.Background" ResourceKey="Neutral900" />
+  <colors:StaticResource x:Key="MaterialDesign.Brush.StatusBar.Foreground" ResourceKey="Black900" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.TabControl.Divider" ResourceKey="Black100" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.TextBox.DisabledBackground" ResourceKey="Black50" />
   <colors:StaticResource x:Key="MaterialDesign.Brush.TextBox.FilledBackground" ResourceKey="Black50" />

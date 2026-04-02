@@ -1,4 +1,6 @@
-﻿using Microsoft.Xaml.Behaviors;
+﻿using System.Threading;
+using System.Windows.Threading;
+using Microsoft.Xaml.Behaviors;
 
 namespace MaterialDesignThemes.Wpf.Behaviors;
 
@@ -10,12 +12,22 @@ public class TextBoxLineCountBehavior : Behavior<TextBox>
     private void AssociatedObjectOnTextChanged(object sender, TextChangedEventArgs e) => UpdateAttachedProperties();
     private void AssociatedObjectOnLayoutUpdated(object? sender, EventArgs e) => UpdateAttachedProperties();
 
+    private int _uiUpdateInProgress = 0;
+
     private void UpdateAttachedProperties()
     {
-        if (AssociatedObject != null)
+        if (AssociatedObject is { } associatedObject &&
+            Interlocked.CompareExchange(ref _uiUpdateInProgress, 1, 0) == 0)
         {
-            AssociatedObject.SetCurrentValue(TextFieldAssist.TextBoxLineCountProperty, AssociatedObject.LineCount);
-            AssociatedObject.SetCurrentValue(TextFieldAssist.TextBoxIsMultiLineProperty, AssociatedObject.LineCount > 1);
+            associatedObject.Dispatcher
+            .BeginInvoke(() =>
+            {
+                int lineCount = associatedObject.LineCount;
+                associatedObject.SetCurrentValue(TextFieldAssist.TextBoxLineCountProperty, lineCount);
+                associatedObject.SetCurrentValue(TextFieldAssist.TextBoxIsMultiLineProperty, lineCount > 1);
+                Interlocked.CompareExchange(ref _uiUpdateInProgress, 0, 1);
+            },
+            DispatcherPriority.Background);
         }
     }
 
@@ -28,10 +40,10 @@ public class TextBoxLineCountBehavior : Behavior<TextBox>
 
     protected override void OnDetaching()
     {
-        if (AssociatedObject != null)
+        if (AssociatedObject is { } associatedObject)
         {
-            AssociatedObject.TextChanged -= AssociatedObjectOnTextChanged;
-            AssociatedObject.LayoutUpdated -= AssociatedObjectOnLayoutUpdated;
+            associatedObject.TextChanged -= AssociatedObjectOnTextChanged;
+            associatedObject.LayoutUpdated -= AssociatedObjectOnLayoutUpdated;
         }
         base.OnDetaching();
     }
